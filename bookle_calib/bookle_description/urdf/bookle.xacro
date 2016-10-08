@@ -142,6 +142,7 @@
 		<child link="left_wheel" />
 		<parent link="left_frame" />
 		<axis xyz="0 1 0" />
+		<limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/> 
 	</joint>
 
 	<joint type="revolute" name="right_wheel_hinge">
@@ -149,9 +150,25 @@
 		<child link="right_wheel" />
 		<parent link="right_frame" />
 		<axis xyz="0 1 0" />
+		<limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/> 
 	</joint>
 
-	<include>
+	<joint type="fixed" name="left_frame_joint">
+		<origin xyz="0 -0.1 0.1" rpy="0 0 0" />
+		<child link="left_frame" />
+		<parent link="chassis" />
+		<axis xyz="1 0 0" />
+	</joint>
+
+	<joint type="fixed" name="right_frame_joint">
+		<origin xyz="0 0.1 0.1" rpy="0 0 0" />
+		<child link="right_frame" />
+		<parent link="chassis" />
+		<axis xyz="1 0 0" />
+	</joint>
+
+
+	<!-- <include>
 		<uri>model://hokuyo</uri>
 		<pose>0.1 0 0.135 0 0 0</pose>
 	</include>
@@ -165,5 +182,57 @@
 				<lower>0</lower>
 			</limit>
 		</axis>
+	</joint> -->
+
+	<joint name="hokuyo_joint" type="fixed">
+		<axis xyz="0 1 0" />
+		<origin xyz="0.1 0 0.135" rpy="0 0 0"/>
+		<parent link="chassis"/>
+		<child link="hokuyo_link"/>
 	</joint>
+
+	<!-- Hokuyo Laser -->
+	<link name="hokuyo_link">
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.1 0.1 0.1"/>
+			</geometry>
+		</collision>
+
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="package://bookle_description/meshes/hokuyo.dae"/>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<mass value="1e-5" />
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+		</inertial>
+	</link>
+
+	<transmission name="tran1">
+		<type>transmission_interface/SimpleTransmission</type>
+		<joint name="joint1">
+			<hardwareInterface>EffortJointInterface</hardwareInterface>
+		</joint>
+		<actuator name="motor1">
+			<hardwareInterface>EffortJointInterface</hardwareInterface>
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+	</transmission>
+
+	<transmission name="tran2">
+		<type>transmission_interface/SimpleTransmission</type>
+		<joint name="joint2">
+			<hardwareInterface>EffortJointInterface</hardwareInterface>
+		</joint>
+		<actuator name="motor2">
+			<hardwareInterface>EffortJointInterface</hardwareInterface>
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+	</transmission>
 </robot>
