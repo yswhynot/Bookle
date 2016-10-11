@@ -49,6 +49,12 @@
 				<cylinder radius="0.05" length="0.015" />
 			</geometry>
 		</visual>
+
+		<inertial>
+			<origin xyz="0 0 .1" rpy="0 0 0" />
+			<mass value="1" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
 	</link>
 
 	<link name="left_wheel">
@@ -64,9 +70,10 @@
 				<cylinder radius="0.04" length="0.015" />
 			</geometry>
 		</visual>
+
 		<inertial>
 			<mass value="1" />
-			<origin xyz="0 0 1" rpy="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
 		</inertial>
 	</link>
@@ -84,9 +91,10 @@
 				<cylinder radius="0.04" length="0.015" />
 			</geometry>
 		</visual>
+
 		<inertial>
 			<mass value="1" />
-			<origin xyz="0 0 1" rpy="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
 		</inertial>
 	</link>
@@ -118,6 +126,12 @@
 				<box size=".08 .002 .06" />
 			</geometry>
 		</visual>
+
+		<inertial>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<mass value="1" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
 	</link>
 
 	<link name="right_frame">
@@ -147,6 +161,12 @@
 				<box size=".08 .002 .06" />
 			</geometry>
 		</visual>
+
+		<inertial>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<mass value="1" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
 	</link>
 
 	<joint type="revolute" name="left_wheel_hinge">
@@ -166,18 +186,38 @@
 	</joint>
 
 	<joint type="fixed" name="left_frame_joint">
-		<origin xyz="0 0.1 0.069" rpy="0 0 0" />
+		<origin xyz="0 0.1 0.07" rpy="0 0 0" />
 		<child link="left_frame" />
 		<parent link="chassis" />
 		<axis xyz="1 0 0" />
 	</joint>
 
 	<joint type="fixed" name="right_frame_joint">
-		<origin xyz="0 -0.1 0.069" rpy="0 0 0" />
+		<origin xyz="0 -0.1 0.07" rpy="0 0 0" />
 		<child link="right_frame" />
 		<parent link="chassis" />
 		<axis xyz="1 0 0" />
 	</joint>
+
+	<transmission name="left_wheel_trans" type="SimpleTransmission">
+		<type>transmission_interface/SimpleTransmission</type>
+		<actuator name="left_wheel_motor">
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+		<joint name="left_wheel">
+			<hardwareInterface>VelocityJointInterface</hardwareInterface>
+		</joint>
+	</transmission>
+
+	<transmission name="right_wheel_trans" type="SimpleTransmission">
+		<type>transmission_interface/SimpleTransmission</type>
+		<actuator name="right_wheel_motor">
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+		<joint name="right_wheel">
+			<hardwareInterface>VelocityJointInterface</hardwareInterface>
+		</joint>
+	</transmission>
 
 
 	<!-- <include>
