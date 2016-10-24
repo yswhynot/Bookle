@@ -240,11 +240,11 @@
 		<axis xyz="0 1 0" />
 		<origin xyz="0.1 0 0.135" rpy="0 0 0"/>
 		<parent link="chassis"/>
-		<child link="hokuyo_link"/>
+		<child link="velodyne"/>
 	</joint>
 
 	<!-- Hokuyo Laser -->
-	<link name="hokuyo_link">
+	<link name="velodyne">
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<geometry>

@@ -22,7 +22,7 @@
 		<mu2>0.2</mu2>
 	</gazebo>
 
-	<gazebo reference="hokuyo_link">
+	<gazebo reference="velodyne">
 		<sensor type="ray" name="head_hokuyo_sensor">
 			<pose>0 0 0 0 0 0</pose>
 			<visualize>false</visualize>
@@ -49,7 +49,7 @@
 			</ray>
 			<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
 				<topicName>/bookle/laser/scan</topicName>
-				<frameName>hokuyo_link</frameName>
+				<frameName>velodyne</frameName>
 			</plugin>
 		</sensor>
 	</gazebo>
