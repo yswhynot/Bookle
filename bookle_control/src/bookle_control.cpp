@@ -62,8 +62,27 @@ int main(int argc, char** argv)
 
 	unsigned int counter = 0;
 
+	double yaw = PI / 2, pitch = 0, roll = 0;
+
+	double t0 = std::cos(yaw * 0.5f);
+	double t1 = std::sin(yaw * 0.5f);
+	double t2 = std::cos(roll * 0.5f);
+	double t3 = std::sin(roll * 0.5f);
+	double t4 = std::cos(pitch * 0.5f);
+	double t5 = std::sin(pitch * 0.5f);
+
+	double w = t0 * t2 * t4 + t1 * t3 * t5;
+	double x = t0 * t3 * t4 - t1 * t2 * t5;
+	double y = t0 * t2 * t5 + t1 * t3 * t4;
+	double z = t1 * t2 * t4 - t0 * t3 * t5;
+
+	ms.pose.orientation.x = x;
+	ms.pose.orientation.y = y;
+	ms.pose.orientation.z = z;
+	ms.pose.orientation.w = w;
+
 	while (ros::ok()) {
-		if(counter < 400) {
+		if(counter < 500) {
 			ms.pose.position.y += 0.003;
 			mpose.pose.position.y = ms.pose.position.y;
 		}
@@ -74,7 +93,7 @@ int main(int argc, char** argv)
 
 		// if(ms.pose.position.x < -3) {
 		// 	theta += 0.0785;
-			
+
 		// 	ms.pose.position.x = -3 - sin(theta);
 		// 	ms.pose.position.y = 1 - cos(theta);
 		// 	mpose.pose.position.x = ms.pose.position.x;
