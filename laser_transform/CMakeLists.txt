@@ -9,10 +9,15 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   tf
+  pcl_conversions
+  pcl_ros
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
+find_package(PCL REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -117,6 +122,8 @@ include_directories(include)
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
   ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -136,10 +143,17 @@ add_executable(laser_transform_node src/laser_transform_node.cpp)
 ## same as for the library above
 add_dependencies(laser_transform_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+link_directories(
+  ${Boost_LIBRARY_DIRS}
+  ${Eigen_LIBRARY_DIRS}
+  ${PCL_LIBRARY_DIRS}
+)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(laser_transform_node
   laser_transform
   ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 #############
