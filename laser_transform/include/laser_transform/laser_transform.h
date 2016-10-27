@@ -1,11 +1,18 @@
+#include <math.h>
+#include <iostream>
+
 #include <ros/ros.h>
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <tf/transform_listener.h>
 #include <laser_geometry/laser_geometry.h>
 #include "pcl/common/eigen.h"
 #include "pcl/common/transforms.h"
-
-const double M_PI = 3.1415926;
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
+#include <pcl_ros/transforms.h>
 
 class My_Filter {
 public:
@@ -19,9 +26,12 @@ private:
     ros::Publisher point_cloud_publisher_;
     ros::Subscriber scan_sub_;
 
-    Eigen::Matrix4f rotMatrixX;
-    Eigen::Matrix4f rotMatrixY;
-    Eigen::Matrix4f rotMatrixZ;
+    // Eigen::Matrix4f rotMatrixX;
+    // Eigen::Matrix4f rotMatrixY;
+    // Eigen::Matrix4f rotMatrixZ;
+
+    // Eigen::Transform<double, 3, Eigen::Affine> transform;
+    Eigen::Matrix4f transform;
 };
 
 My_Filter::My_Filter(){
@@ -29,10 +39,15 @@ My_Filter::My_Filter(){
     point_cloud_publisher_ = node_.advertise<sensor_msgs::PointCloud2> ("/velodyne_points", 100, false);
     tfListener_.setExtrapolationLimit(ros::Duration(0.1));
 
-    pcl::PointCloud<pcl::pointxyzrgb> transformed_cloud;
-    double rotx = 0.0;
-    double roty = M_PI/2.0;
-    double rotz = -M_PI/2.0;
+    float rotx = 0.0;
+    float roty = M_PI / 2;
+    // double roty = M_PI;
+    // double rotz = -M_PI/2.0;
+    float rotz = 0.0;
+
+    Eigen::Matrix4f rotMatrixX;
+    Eigen::Matrix4f rotMatrixY;
+    Eigen::Matrix4f rotMatrixZ;
 
     rotMatrixX <<
     1.0, 0.0, 0.0, 0.0,
@@ -51,4 +66,8 @@ My_Filter::My_Filter(){
     sin(rotz), cos(rotz), 0.0, 0.0,
     0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, 0.0, 1.0;
+
+    transform = (rotMatrixX * rotMatrixY * rotMatrixZ);
+    // transform = Eigen::Matrix4f::Identity();
+    std::cout << "Transform: \n" << transform << std::endl;
 }
