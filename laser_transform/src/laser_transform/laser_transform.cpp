@@ -22,4 +22,16 @@ void My_Filter::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan){
 	point_cloud_publisher_.publish(trans_pc2);
 }
 
+void My_Filter::pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr& pc) {
+	sensor_msgs::PointCloud2 input = *pc;
+	sensor_msgs::PointCloud2 output;
+	pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
+	pcl::PCLPointCloud2 pcl_pc2;
+
+	pcl_conversions::toPCL(input, pcl_pc2);
+    pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
+    pcl::toPCLPointCloud2(pcl_cloud, pcl_pc2);
+    pcl_conversions::fromPCL(pcl_pc2, output);
+	point_cloud_trans_pub_.publish(output);
+}
 

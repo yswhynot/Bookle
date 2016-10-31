@@ -18,13 +18,17 @@ class My_Filter {
 public:
     My_Filter();
     void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
+    void pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr& pc);
+
 private:
     ros::NodeHandle node_;
     laser_geometry::LaserProjection projector_;
     tf::TransformListener tfListener_;
 
     ros::Publisher point_cloud_publisher_;
+    ros::Publisher point_cloud_trans_pub_;
     ros::Subscriber scan_sub_;
+    ros::Subscriber point_cloud_sub_;
 
     // Eigen::Matrix4f rotMatrixX;
     // Eigen::Matrix4f rotMatrixY;
@@ -36,11 +40,14 @@ private:
 
 My_Filter::My_Filter(){
     scan_sub_ = node_.subscribe<sensor_msgs::LaserScan> ("/bookle/laser/scan", 100, &My_Filter::scanCallback, this);
-    point_cloud_publisher_ = node_.advertise<sensor_msgs::PointCloud2> ("/velodyne_points", 100, false);
+    point_cloud_publisher_ = node_.advertise<sensor_msgs::PointCloud2> ("/velodyne_points_origin", 100, false);
+    point_cloud_sub_ = node_.subscribe<sensor_msgs::PointCloud2> ("/velodyne_points", 100, &My_Filter::pointcloudCallback, this);
+    point_cloud_trans_pub_ = node_.advertise<sensor_msgs::PointCloud2> ("/velodyne_points_trans", 100, false);
     tfListener_.setExtrapolationLimit(ros::Duration(0.1));
 
     float rotx = 0.0;
-    float roty = M_PI / 2;
+    // float roty = M_PI / 2;
+    float roty = 0.0;
     // double roty = M_PI;
     // double rotz = -M_PI/2.0;
     float rotz = 0.0;
