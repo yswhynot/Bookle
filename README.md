@@ -33,5 +33,5 @@ To give input to the loam_velodyne system, in addition to the General Run above,
 ## GMapping
 Download the `git clone https://github.com/ros-perception/slam_gmapping.git` and build the project.  
 
-Run with `rosrun gmapping slam_gmapping scan:=/bookle/laser/scan`.  
+Run with `rosrun gmapping slam_gmapping scan:=/bookle/laser/scan`. This takes input directly from the ros message.
 
