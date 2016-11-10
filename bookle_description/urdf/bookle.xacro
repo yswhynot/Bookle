@@ -7,7 +7,7 @@
 	<!-- Import all Gazebo-customization elements, including Gazebo colors -->
 	<xacro:include filename="$(find bookle_description)/urdf/bookle.gazebo" />
 
-	<link name="chassis">
+	<link name="base_link">
 		<collision name="collision">
 			<origin xyz="0 0 0.1" rpy="0 0 0" />
 			<geometry>
@@ -188,14 +188,14 @@
 	<joint type="fixed" name="left_frame_joint">
 		<origin xyz="0 0.1 0.07" rpy="0 0 0" />
 		<child link="left_frame" />
-		<parent link="chassis" />
+		<parent link="base_link" />
 		<axis xyz="1 0 0" />
 	</joint>
 
 	<joint type="fixed" name="right_frame_joint">
 		<origin xyz="0 -0.1 0.07" rpy="0 0 0" />
 		<child link="right_frame" />
-		<parent link="chassis" />
+		<parent link="base_link" />
 		<axis xyz="1 0 0" />
 	</joint>
 
@@ -226,7 +226,7 @@
 	</include>
 	<joint name="hokuyo_joint" type="revolute">
 		<child>hokuyo::link</child>
-		<parent>chassis</parent>
+		<parent>base_link</parent>
 		<axis>
 			<xyz>0 0 1</xyz>
 			<limit>
@@ -239,12 +239,12 @@
 	<joint name="hokuyo_joint" type="fixed">
 		<axis xyz="0 0 1" />
 		<origin xyz="0.1 0 0.135" rpy="0 0 0"/>
-		<parent link="chassis"/>
-		<child link="velodyne"/>
+		<parent link="base_link"/>
+		<child link="base_laser"/>
 	</joint>
 
 	<!-- Hokuyo Laser -->
-	<link name="velodyne">
+	<link name="base_laser">
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<geometry>
