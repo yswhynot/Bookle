@@ -23,13 +23,6 @@ To change the rotation matrix, edit the variables in the constructor in `laser_t
 ## General Run
 Run/launch `bookle_gazebo` and `bookle_control` as descripbed above to open the project.
 
-## Velodyne Project
-Download the `git clone https://github.com/laboshinl/loam_velodyne.git` and build the project.  
-
-Run with `roslaunch loam_velodyne loam_velodyne.launch`.  
-
-To give input to the loam_velodyne system, in addition to the General Run above, use `laser_transform` to input PointCloud to the system.
-
 ## GMapping
 Download the `git clone https://github.com/ros-perception/slam_gmapping.git` and build the project.  
 
