@@ -1,6 +1,10 @@
 <launch>
 	<group>
-		<node pkg="tf" type="static_transform_publisher" name="link0" args="0 0 0 0 0 0 odom base_link 100" />
+		<!--<node pkg="tf" type="static_transform_publisher" name="link0" args="0 0 0 0 0 0 odom base_link 100" /> -->
 		<node pkg="tf" type="static_transform_publisher" name="link1" args="0 0 0 0 0 0 base_link base_laser 100" />
+<!--		<node pkg="tf" type="static_transform_publisher" name="link_l" args="0 -0.1 0 0 0 0 base_link left_frame 100" />
+		<node pkg="tf" type="static_transform_publisher" name="link_lw" args="0 0 0 0 0 0 left_frame left_wheel 100" />
+		<node pkg="tf" type="static_transform_publisher" name="link_r" args="0 0.1 0 0 0 0 base_link right_frame 100" />
+		<node pkg="tf" type="static_transform_publisher" name="link_rw" args="0 0.1 0 0 0 0 right_frame right_wheel 100" /> -->
 	</group>
 </launch>

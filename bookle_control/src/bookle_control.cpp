@@ -24,8 +24,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle* nh = new ros::NodeHandle();
 	ros::Publisher state_pub = nh->advertise<gazebo_msgs::ModelState>("/gazebo/set_model_state", 1);
 	ros::Publisher pose_pub = nh->advertise<geometry_msgs::PoseStamped>("/gazebo/ros_pose", 1);
-	tf::TransformBroadcaster odom_broadcaster;
-	tf::TransformBroadcaster laser_broadcaster;
+	
 
 	gazebo_msgs::ModelState ms;
 	geometry_msgs::PoseStamped mpose;
@@ -64,39 +63,12 @@ int main(int argc, char** argv)
 	ms.pose.orientation.w = w;
 
 	state_pub.publish(ms);
-
-	geometry_msgs::TransformStamped odom_trans;
-	odom_trans.header.frame_id = "odom";
-	odom_trans.child_frame_id = "base_link";
-	odom_trans.transform.translation.x = ms.pose.orientation.x;
-	odom_trans.transform.translation.z = 0.0;
-	odom_trans.transform.rotation.x = x;
-	odom_trans.transform.rotation.y = y;
-	odom_trans.transform.rotation.z = z;
-	odom_trans.transform.rotation.w = w;
-
-	geometry_msgs::TransformStamped laser_trans;
-	laser_trans.header.frame_id = "base_link";
-	laser_trans.child_frame_id = "base_laser";
-
-	laser_trans.transform.translation.x = 0;
-	laser_trans.transform.translation.y = 0;
-	laser_trans.transform.translation.z = 0.0;
-	laser_trans.transform.rotation = tf::createQuaternionMsgFromYaw(0);
-
-    //send the transform
-	laser_broadcaster.sendTransform(laser_trans);
-	odom_broadcaster.sendTransform(odom_trans);
 	
 	while (ros::ok()) {
 		if(counter < 500) {
+			// RobotTFPublisher();
 			ms.pose.position.y += 0.003;
 			mpose.pose.position.y = ms.pose.position.y;
-
-
-			odom_trans.header.stamp = ros::Time::now();
-			odom_trans.transform.translation.y = ms.pose.orientation.y;
-			laser_trans.header.stamp = ros::Time::now();
 		}
 		else
 			break;
@@ -121,8 +93,8 @@ int main(int argc, char** argv)
 		// 	break;
 
 		//send the transform
-		odom_broadcaster.sendTransform(odom_trans);
-		laser_broadcaster.sendTransform(laser_trans);
+		// odom_broadcaster.sendTransform(odom_trans);
+		// laser_broadcaster.sendTransform(laser_trans);
 
 		state_pub.publish(ms);
 		pose_pub.publish(mpose);

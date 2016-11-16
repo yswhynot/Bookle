@@ -7,6 +7,23 @@
 	<!-- Import all Gazebo-customization elements, including Gazebo colors -->
 	<xacro:include filename="$(find bookle_description)/urdf/bookle.gazebo" />
 
+	<link name="base_footprint">
+		<collision name="base_footprint_collision">
+			<origin xyz="0 0 0"  rpy="0 0 0" />
+			<geometry>
+				<box size="0.001 0.001 0.001" />
+			</geometry>
+		</collision>
+
+		<visual name="base_footprint_visual">
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.001 0.001 0.001" />
+			</geometry>
+		</visual>
+
+	</link>
+
 	<link name="base_link">
 		<collision name="collision">
 			<origin xyz="0 0 0.1" rpy="0 0 0" />
@@ -100,7 +117,6 @@
 	</link>
 
 	<link name="left_frame">
-		<!-- <origin xyz="0 -0.1 0.1" rpy="0 0 0" /> -->
 		<collision name="left_collision">
 			<origin xyz="0 0.0075 0" rpy="0 0 0" />
 			<geometry>
@@ -135,7 +151,6 @@
 	</link>
 
 	<link name="right_frame">
-		<!-- <origin xyz="0 0.1 0.1" rpy="0 0 0" /> -->
 		<collision name="left_collision">
 			<origin xyz="0 .0075 0" rpy="0 0 0" />
 			<geometry>
@@ -169,20 +184,26 @@
 		</inertial>
 	</link>
 
-	<joint type="revolute" name="left_wheel_hinge">
+	<joint type="fixed" name="base_footprint_joint">
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<child link="base_link" />
+		<parent link="base_footprint" />
+	</joint>
+
+	<joint type="continuous" name="left_wheel_joint">
 		<origin xyz="0 0 -0.03" rpy="0 0 0" />
 		<child link="left_wheel" />
 		<parent link="left_frame" />
 		<axis xyz="0 1 0" />
-		<limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/> 
+		<!-- <limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/>  -->
 	</joint>
 
-	<joint type="revolute" name="right_wheel_hinge">
+	<joint type="continuous" name="right_wheel_joint">
 		<origin xyz="0 0 -0.03" rpy="0 0 0" />
 		<child link="right_wheel" />
 		<parent link="right_frame" />
 		<axis xyz="0 1 0" />
-		<limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/> 
+		<!-- <limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/>  -->
 	</joint>
 
 	<joint type="fixed" name="left_frame_joint">
@@ -204,7 +225,7 @@
 		<actuator name="left_wheel_motor">
 			<mechanicalReduction>1</mechanicalReduction>
 		</actuator>
-		<joint name="left_wheel">
+		<joint name="left_wheel_joint">
 			<hardwareInterface>VelocityJointInterface</hardwareInterface>
 		</joint>
 	</transmission>
@@ -214,7 +235,7 @@
 		<actuator name="right_wheel_motor">
 			<mechanicalReduction>1</mechanicalReduction>
 		</actuator>
-		<joint name="right_wheel">
+		<joint name="right_wheel_joint">
 			<hardwareInterface>VelocityJointInterface</hardwareInterface>
 		</joint>
 	</transmission>
