@@ -20,7 +20,6 @@
 			<odometryTopic>odom</odometryTopic>
 			<odometryFrame>odom</odometryFrame>
 			<robotBaseFrame>base_footprint</robotBaseFrame>
-			<publishWheelTF>true</publishWheelTF>
 			<publishWheelJointState>true</publishWheelJointState>.
 		</plugin>
 	</gazebo>

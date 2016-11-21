@@ -23,4 +23,12 @@
 	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-urdf -model bookle -param robot_description -x 0.75 -y -0.75 -z 0 -R 0 -P 0 -Y 3.141593"/>
 
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+		<param name="publish_frequency" type="double" value="30.0" />
+	</node>
+
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen" respawn="true">
+		<param name="rate" value="30" />
+	</node>
+
 </launch>
