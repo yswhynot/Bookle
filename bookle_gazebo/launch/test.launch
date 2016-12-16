@@ -42,7 +42,7 @@
 
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen" respawn="true">
 		<param name="rate" value="30" />
-		<param name="use_gui" value="true" />
+		<param name="use_gui" value="false" />
 	</node>
 
 </launch>

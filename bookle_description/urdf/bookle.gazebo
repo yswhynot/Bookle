@@ -20,6 +20,7 @@
 			<odometryTopic>odom</odometryTopic>
 			<odometryFrame>odom</odometryFrame>
 			<robotBaseFrame>base_footprint</robotBaseFrame>
+			<publish_tf>1</publish_tf>
 			<publishWheelJointState>true</publishWheelJointState>.
 		</plugin>
 	</gazebo>
@@ -30,23 +31,27 @@
 	</gazebo>
 
 	<gazebo link="left_frame">
-		<mu1>0.2</mu1>
-		<mu2>0.2</mu2>
+		<mu1>0.1</mu1>
+		<mu2>0.1</mu2>
 	</gazebo>
 
 	<gazebo link="right_frame">
-		<mu1>0.2</mu1>
-		<mu2>0.2</mu2>
+		<mu1>0.1</mu1>
+		<mu2>0.1</mu2>
 	</gazebo>
 
 	<gazebo link="left_wheel">
 		<mu1>0.2</mu1>
 		<mu2>0.2</mu2>
+		<kp>100</kp>
+		<kd>1</kd>
 	</gazebo>
 
 	<gazebo link="right_wheel">
 		<mu1>0.2</mu1>
 		<mu2>0.2</mu2>
+		<kp>100</kp>
+		<kd>1</kd>
 	</gazebo>
 
 	<gazebo reference="base_laser">

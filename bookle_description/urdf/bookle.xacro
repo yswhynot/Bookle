@@ -25,14 +25,14 @@
 	</link>
 
 	<link name="base_link">
-		<collision name="collision">
+		<collision name="base_link_collision">
 			<origin xyz="0 0 0.1" rpy="0 0 0" />
 			<geometry>
 				<cylinder radius="0.15" length="0.003" />
 			</geometry>
 		</collision>
 
-		<visual name="visual">
+		<visual name="base_link_visual">
 			<origin xyz="0 0 0.1" rpy="0 0 0" />
 			<geometry>
 				<cylinder radius="0.15" length="0.003" />
@@ -69,22 +69,24 @@
 
 		<inertial>
 			<origin xyz="0 0 .1" rpy="0 0 0" />
-			<mass value="1" />
+			<mass value="0.5" />
 			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
 		</inertial>
 	</link>
 
 	<link name="left_wheel">
-		<collision name="collision">
+		<collision name="left_wheel_collision">
 			<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
 			<geometry>
-				<cylinder radius="0.04" length="0.015" />
+				<!-- <cylinder radius="0.04" length="0.015" /> -->
+				<box size="0.04 0.04 0.01" />
 			</geometry>
 		</collision>
-		<visual name="visual">
+		<visual name="left_wheel_visual">
 			<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
 			<geometry>
-				<cylinder radius="0.04" length="0.015" />
+				<!-- <cylinder radius="0.04" length="0.015" /> -->
+				<box size="0.04 0.04 0.01" />
 			</geometry>
 		</visual>
 
@@ -96,16 +98,18 @@
 	</link>
 
 	<link name="right_wheel">
-		<collision name="collision">
+		<collision name="right_wheel_collision">
 			<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
 			<geometry>
-				<cylinder radius="0.04" length="0.015" />
+				<!-- <cylinder radius="0.04" length="0.015" /> -->
+				<box size="0.04 0.04 0.01" />
 			</geometry>
 		</collision>
-		<visual name="visual">
+		<visual name="right_wheel_visual">
 			<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
 			<geometry>
-				<cylinder radius="0.04" length="0.015" />
+				<!-- <cylinder radius="0.04" length="0.015" /> -->
+				<box size="0.04 0.04 0.01" />
 			</geometry>
 		</visual>
 
@@ -117,26 +121,26 @@
 	</link>
 
 	<link name="left_frame">
-		<collision name="left_collision">
+		<collision name="left_frame1_collision">
 			<origin xyz="0 0.0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</collision>
-		<visual name="left_visual">
+		<visual name="left_frame1_visual">
 			<origin xyz="0 0.0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</visual>
 
-		<collision name="right_collision">
+		<collision name="left_frame2_collision">
 			<origin xya="0 -0.0075 0" rpy="0 0 0"/>
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</collision>
-		<visual name="right_visual">
+		<visual name="left_frame2_visual">
 			<origin xyz="0 -0.0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
@@ -151,26 +155,26 @@
 	</link>
 
 	<link name="right_frame">
-		<collision name="left_collision">
+		<collision name="right_frame1_collision">
 			<origin xyz="0 .0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</collision>
-		<visual name="left_visual">
+		<visual name="right_frame1_visual">
 			<origin xyz="0 .0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</visual>
 
-		<collision name="right_collision">
+		<collision name="right_frame2_collision">
 			<origin xyz="0 -0.0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
 			</geometry>
 		</collision>
-		<visual name="right_visual">
+		<visual name="right_frame2_visual">
 			<origin xyz="0 -0.0075 0" rpy="0 0 0" />
 			<geometry>
 				<box size=".08 .002 .06" />
@@ -195,6 +199,8 @@
 		<child link="left_wheel" />
 		<parent link="left_frame" />
 		<axis xyz="0 1 0" />
+		<dynamics damping="0.1" friction="0.1"/>
+		<limit effort="100" velocity="100"/>
 		<!-- <limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/>  -->
 	</joint>
 
@@ -203,6 +209,8 @@
 		<child link="right_wheel" />
 		<parent link="right_frame" />
 		<axis xyz="0 1 0" />
+		<dynamics damping="0.1" friction="0.2"/>
+		<limit effort="100" velocity="100"/>
 		<!-- <limit effort="30" velocity="0.5" lower="-3.14" upper="3.14"/>  -->
 	</joint>
 
@@ -211,6 +219,7 @@
 		<child link="left_frame" />
 		<parent link="base_link" />
 		<axis xyz="1 0 0" />
+		<dynamics damping="0.1" friction="0.2"/>
 	</joint>
 
 	<joint type="fixed" name="right_frame_joint">
@@ -218,6 +227,7 @@
 		<child link="right_frame" />
 		<parent link="base_link" />
 		<axis xyz="1 0 0" />
+		<dynamics damping="0.1" friction="0.1"/>
 	</joint>
 
 	<transmission name="left_wheel_trans" type="SimpleTransmission">
