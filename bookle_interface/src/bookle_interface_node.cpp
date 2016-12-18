@@ -6,7 +6,14 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     bookle::BookleInterface bookleInterface(nh);
 
-    ros::spin();
+    ros::Rate rate(50);
+    while (ros::ok()) {
+    	bookleInterface.start();
+    	ros::spinOnce();
+    	rate.sleep();
+    }
+
+    // ros::spin();
 
     return 0;
 }
