@@ -4,7 +4,7 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "bookle_interface");
 
     ros::NodeHandle nh;
-    BookleInterface bookleInterface(nh);
+    bookle::BookleInterface bookleInterface(nh);
 
     ros::spin();
 

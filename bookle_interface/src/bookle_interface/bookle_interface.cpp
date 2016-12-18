@@ -1,5 +1,7 @@
 #include "bookle_interface/bookle_interface.h"
 
+using namespace bookle;
+
 BookleInterface::BookleInterface(ros::NodeHandle& nh) {
 	gmapping_pt_pub_ = nh.advertise<geometry_msgs::Point>("bookle/est_point", 5);
 	gazebo_pt_pub_ = nh.advertise<geometry_msgs::Point>("bookle/gazebo_point", 5);
@@ -23,10 +25,12 @@ void BookleInterface::StateCallback(const gazebo_msgs::ModelState::ConstPtr& inp
 	}
 
 	// read and save data
-	geometry_msgs::PoseStamped tmp_msg;
+	geometry_msgs::TransformStamped tmp_msg;
 	gazebo_point = state.pose.position;
-	tf::poseStampedTFToMsg(tf_transform, tmp_msg);
-	est_point = tmp_msg.pose.position;
+	tf::transformStampedTFToMsg(tf_transform, tmp_msg);
+	est_point.x = tmp_msg.transform.translation.x;
+	est_point.y = tmp_msg.transform.translation.y;
+	est_point.z = tmp_msg.transform.translation.z;
 
 	// publish positions
 	gmapping_pt_pub_.publish(est_point);
