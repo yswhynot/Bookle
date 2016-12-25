@@ -1,0 +1,6 @@
+<library path="lib/libpath_follower_nodelet">
+  <class name="path_follow/PathFollowerNodelet" type="path_follow::PathFollowerNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+    </description>
+  </class>
+</library>
