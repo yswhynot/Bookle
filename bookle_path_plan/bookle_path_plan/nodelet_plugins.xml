@@ -1,0 +1,6 @@
+<library path="lib/libpath_planner_nodelet">
+  <class name="path_planner/PathPlannerNodelet" type="path_planner::PathPlannerNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+    </description>
+  </class>
+</library>
