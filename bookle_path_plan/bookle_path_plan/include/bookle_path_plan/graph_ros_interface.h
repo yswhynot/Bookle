@@ -10,12 +10,18 @@
 #include <std_msgs/Int32.h>
 
 namespace bookle {
+	const int BARRIER_THRESHOLD = 50;
+
 	struct GraphHandler {
 		GraphHandler();
 		~GraphHandler();
-		UpdateGridGraph(nav_msgs::OccupancyGrid& input_map);
+		bool UpdateGridGraph(nav_msgs::OccupancyGrid& input_map);
+		void LoadPlannedPath(nav_msgs::Path& result_path);
 
 		GridGraph grid_graph;
+		int width;
+		int height;
+		float resolution;
 
 	};
 }

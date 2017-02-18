@@ -46,7 +46,7 @@ namespace bookle {
 		~GridGraph();
 		bool AStarSearch();
 		void getPlannedPath(bVertexSet& des_path);
-		bool UpdateGraph(bVertexSet& input_graph);
+		bool UpdateBarrier(bVertexSet& input_graph);
 		void UpdateGoal(bVertexDescriptor& input_goal);
 		void UpdateStart(bVertexDescriptor& input_start);
 		bVerSizeType getLengthByDim(std::size_t dim) const { return grid.length(dim); }

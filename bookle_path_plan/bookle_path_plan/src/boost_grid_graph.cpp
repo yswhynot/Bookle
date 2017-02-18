@@ -45,8 +45,9 @@ namespace bookle {
 		des_path = planned_traj;		
 	}
 
-	bool GridGraph::UpdateGraph(bVertexSet& input_graph) {
+	bool GridGraph::UpdateBarrier(bVertexSet& input_barrier) {
 		// Create barrier set
+
 
 		// Create filtered set
 
