@@ -7,6 +7,7 @@
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/grid_graph.hpp>
+#include <boost/graph/properties.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -22,26 +23,39 @@ namespace bookle {
 	const int GRID_RANK = 3;
 
 	typedef boost::grid_graph<GRID_RANK> bGrid;
-	typedef boost::graph_traits<bGrid>::vertex_descriptor bVertexDescriptor;
-	typedef boost::graph_traits<bGrid>::vertices_size_type bVerSizeType;
+	typedef boost::graph_traits<bGrid> bTraits;
+
+	typedef bTraits::vertex_descriptor bVertexDescriptor;
+	typedef bTraits::vertices_size_type bVerSizeType;
+	// typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
+
+	typedef boost::property_map<Graph, boost::vertex_index_t>::const_type bVertexIdMap;
+	typedef boost::property_map<Graph, boost::edge_index_t>::const_type bEdgeIdMap;
+
+	// TODO: rewrite sample vertex
+	// boost::vector_property_map<sampleVertex, bVertexIdMap> props(num_vertices(gridD), indexMap);
+
+
 
 	// A hash function for vertices
-	struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
-		std::size_t operator()(bVertexDescriptor const& vd) const {
-			std::size_t seed = 0;
-			boost::hash_combine(seed, vd[0]);
-			boost::hash_combine(seed, vd[1]);
-			return seed;
-		}
-	};
+		struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
+			std::size_t operator()(bVertexDescriptor const& vd) const {
+				std::size_t seed = 0;
+				boost::hash_combine(seed, vd[0]);
+				boost::hash_combine(seed, vd[1]);
+				boost::hash_combine(seed, vd[2]);
+				return seed;
+			}
+		};
 
-	typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
-	typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type bFilteredGrid;
+		// TODO: check hash set
+		typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
+		typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type bFilteredGrid;
 
-	
 
-	class GridGraph {
-	public:
+
+		class GridGraph {
+		public:
 		GridGraph();	// to-do: init grid 100*100*4, 3rd dim wrap
 		~GridGraph();
 		bool AStarSearch();
@@ -97,6 +111,8 @@ namespace bookle {
 
 	private:
 		bGrid grid;
+		bVertexIdMap index_map;
+
 		bVertexSet planned_traj;
 		bFilteredGrid filtered_grid;
 		bVertexSet barrier_set;
@@ -109,6 +125,8 @@ namespace bookle {
 		bVertexDescriptor start;
 		BookleHeuristic heuristic;
 		AStarVisitor astar_visitor;
+
+		boost::dynamic_properties dp;
 
 	} // end class
 } // end namespace

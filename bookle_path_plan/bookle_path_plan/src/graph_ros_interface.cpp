@@ -8,13 +8,15 @@ namespace bookle {
 		width = map.info.width;
 		height = map.info.height;
 		resolution = map.info.resolution;
+		std::vector<int> data = map.data;
 
 		bVertexSet barrier_set;
 
-		for(size_t i = 0; i < height; i++) {
-			for(size_t j = 0; j < width; j++) {
-				if((height * i + width) > BARRIER_THRESHOLD) {
+		for(size_t h = 0; h < height; h++) {
+			for(size_t w = 0; w < width; w++) {
+				if(data[height * h + w] > BARRIER_THRESHOLD) {
 					// TODO: insert barrier set and add filtered map in GridGraph
+
 					bVertexDescriptor tmp_des()
 					barrier_set.insert();
 				}
