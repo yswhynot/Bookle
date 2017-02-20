@@ -41,7 +41,7 @@ generate_messages(
 
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES path_planner
+ LIBRARIES bookle_path_plan
  CATKIN_DEPENDS cmake_modules geometry_msgs message_runtime nav_msgs nodelet roscpp std_msgs
  DEPENDS system_lib
 )
@@ -60,6 +60,18 @@ add_library(path_planner
   src/path_planner.cpp
 )
 target_link_libraries(path_planner
+  ${catkin_LIBRARIES}
+)
+add_library(boost_grid_graph
+  src/boost_grid_graph.cpp
+)
+target_link_libraries(boost_grid_graph
+  ${catkin_LIBRARIES}
+)
+add_library(graph_ros_interface
+  src/graph_ros_interface.cpp
+)
+target_link_libraries(graph_ros_interface
   ${catkin_LIBRARIES}
 )
 
