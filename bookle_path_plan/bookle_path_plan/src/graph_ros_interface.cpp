@@ -40,7 +40,7 @@ namespace bookle {
 				g.pose.position.x = (float)it->x;
 				g.pose.position.y = (float)it->y;
 				g.pose.position.z = (float)it->z;
-				tmp_nav_path.poses.pushback(g);
+				tmp_nav_path.poses.push_back(g);
 			}
 
 			result_path = tmp_nav_path;
