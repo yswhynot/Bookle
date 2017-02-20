@@ -3,15 +3,13 @@
 namespace bookle {
 	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()), index_map(get(boost::vertex_index, grid)), prop_map(boost::make_vector_property_map(index_map)) {
 
-		
+			// init		
+			for(int i = 0; i < X_LENGTH; i++)
+				for(int j = 0; j < Y_LENGTH; j++)
+					for(int k = 0; k < Z_LENGTH; k++)
+						put(prop_map, bVertexDescriptor {{i, j, k}}, BookleVertex(i, j, k));
 
-		// TODO: rewrite init loop
-		// initialize
-		for (int i = 0; i < 3; ++i)
-			for (int j = 0; j < 2; ++j)
-				put(props, Traits::vertex_descriptor {{i, j}}, BookleVertex{i, j, false});
-
-			printf("Created graph of %d * %d * %d\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
+			ROS_INFO("Created graph of %d * %d * %d\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
 		}
 		GridGraph::~GridGraph();
 
@@ -38,9 +36,15 @@ namespace bookle {
 			try {
 				astar_search(filtered_grid, start, heuristic, boost::weight_map(weight).predecessor_map(pred_map).distance_map(dist_map).visitor(astar_visitor));
 			} catch (GoalFoundException e) {
-				for(bVertexDescriptor vd_it = goal; vd_it != start; vd_it = predecessor[vd_it])
+				planned_traj_vec.clear();
+
+				for(bVertexDescriptor vd_it = goal; vd_it != start; vd_it = predecessor[vd_it]) {
 					planned_traj.insert(vd_it);
+
+					planned_traj_vec.insert(get(prop_map, vd_it));
+				}
 				planned_traj.insert(start);
+				planned_traj_vec.insert(get(prop_map, start));
 
 				printf("Path planned!\n");
 				return true;
@@ -49,18 +53,20 @@ namespace bookle {
 			return false;
 		}
 
-		void GridGraph::getPlannedPath(bVertexSet& des_path) {
+		void GridGraph::getPlannedPath(std::vector<BookleVertex>& des_path) {
 			des_path.clear();
-			des_path = planned_traj;		
+			des_path = planned_traj_vec;
 		}
 
 		bool GridGraph::UpdateBarrier(bVertexSet& input_barrier) {
-		// Create barrier set
+			// Clear and load barrier set
+			barrier_set.clear();
+			barrier_set = input_barrier;
 
+			// Update filtered set
+			// TODO: Check assignment operator
+			filtered_grid = boost::make_vertex_subset_complement_filter(grid, barrier_set);
 
-		// Create filtered set
-
-		// Update
 		}
 
 		void GridGraph::UpdateGoal(bVertexDescriptor& input_goal) {

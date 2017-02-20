@@ -16,7 +16,9 @@ namespace bookle {
 		GraphHandler();
 		~GraphHandler();
 		bool UpdateGridGraph(nav_msgs::OccupancyGrid& input_map);
-		void LoadPlannedPath(nav_msgs::Path& result_path);
+		bool LoadPlannedPath(nav_msgs::Path& result_path);
+		void UpdateGoal(int x, int y, int z);
+		void UpdateStart(int x, int y, int z);
 
 		GridGraph grid_graph;
 		int width;

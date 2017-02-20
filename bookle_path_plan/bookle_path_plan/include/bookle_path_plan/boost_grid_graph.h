@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
@@ -34,42 +35,43 @@ namespace bookle {
 	typedef boost::property_map<Graph, boost::edge_index_t>::const_type bEdgeIdMap;
 
 	// A hash function for vertices
-		struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
-			std::size_t operator()(bVertexDescriptor const& vd) const {
-				std::size_t seed = 0;
-				boost::hash_combine(seed, vd[0]);
-				boost::hash_combine(seed, vd[1]);
-				boost::hash_combine(seed, vd[2]);
-				return seed;
-			}
-		};
+	struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
+		std::size_t operator()(bVertexDescriptor const& vd) const {
+			std::size_t seed = 0;
+			boost::hash_combine(seed, vd[0]);
+			boost::hash_combine(seed, vd[1]);
+			boost::hash_combine(seed, vd[2]);
+			return seed;
+		}
+	};
 
-		struct BookleVertex {
-			BookleVertex() : x(0), y(0), z(0), is_barrier(false) {}
-			BookleVertex(int ix, int iy, int iz, bool input_barrier) : x(ix), y(iy), z(iz), is_barrier(input_barrier) {}
+	struct BookleVertex {
+		BookleVertex() : x(0), y(0), z(0) {}
+		BookleVertex(int ix, int iy, int iz) : x(ix), y(iy), z(iz) {}
 
-			int x;
-			int y;
-			int z;
-			bool is_barrier;
-		};
+		int x;
+		int y;
+		int z;
+		// bool is_barrier;
+	};
 
-		// TODO: check hash set
-		typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
-		typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type bFilteredGrid;
-		typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
+	// TODO: check hash set
+	typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
+	typedef boost::vertex_subset_complement_filter<grid, bVertexSet>::type bFilteredGrid;
+	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
 
 
 
-		class GridGraph {
-		public:
-		GridGraph();	// to-do: init grid 100*100*4, 3rd dim wrap
+	class GridGraph {
+	public:
+		GridGraph();
 		~GridGraph();
 		bool AStarSearch();
-		void getPlannedPath(bVertexSet& des_path);
+		void getPlannedPath(std::vector<BookleVertex>& des_path);
 		bool UpdateBarrier(bVertexSet& input_graph);
 		void UpdateGoal(bVertexDescriptor& input_goal);
 		void UpdateStart(bVertexDescriptor& input_start);
+
 		bVerSizeType getLengthByDim(std::size_t dim) const { return grid.length(dim); }
 		bool hasBarrier(bVertexDescriptor input_v) const {
 			return (barrier_set.find(input_v) != barrier_set.end());
@@ -136,6 +138,7 @@ namespace bookle {
 		AStarVisitor astar_visitor;
 
 		boost::dynamic_properties dp;
+		std::vector<BookleVertex> planned_traj_vec;
 
 	} // end class
 } // end namespace
