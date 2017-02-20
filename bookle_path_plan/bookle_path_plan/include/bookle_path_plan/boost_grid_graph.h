@@ -8,6 +8,7 @@
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/grid_graph.hpp>
 #include <boost/graph/properties.hpp>
+#include <boost/vector_property_map.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -32,11 +33,6 @@ namespace bookle {
 	typedef boost::property_map<Graph, boost::vertex_index_t>::const_type bVertexIdMap;
 	typedef boost::property_map<Graph, boost::edge_index_t>::const_type bEdgeIdMap;
 
-	// TODO: rewrite sample vertex
-	// boost::vector_property_map<sampleVertex, bVertexIdMap> props(num_vertices(gridD), indexMap);
-
-
-
 	// A hash function for vertices
 		struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
 			std::size_t operator()(bVertexDescriptor const& vd) const {
@@ -48,9 +44,20 @@ namespace bookle {
 			}
 		};
 
+		struct BookleVertex {
+			BookleVertex() : x(0), y(0), z(0), is_barrier(false) {}
+			BookleVertex(int ix, int iy, int iz, bool input_barrier) : x(ix), y(iy), z(iz), is_barrier(input_barrier) {}
+
+			int x;
+			int y;
+			int z;
+			bool is_barrier;
+		};
+
 		// TODO: check hash set
 		typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
 		typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type bFilteredGrid;
+		typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
 
 
 
@@ -109,9 +116,11 @@ namespace bookle {
 			bVertexDescriptor goal;
 		};
 
+
 	private:
 		bGrid grid;
 		bVertexIdMap index_map;
+		bVectorPropMap prop_map;
 
 		bVertexSet planned_traj;
 		bFilteredGrid filtered_grid;

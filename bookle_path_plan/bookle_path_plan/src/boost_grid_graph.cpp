@@ -1,15 +1,15 @@
 #include "bookle_path_plan/boost_grid_graph.h"
 
 namespace bookle {
-	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()) {
+	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()), index_map(get(boost::vertex_index, grid)), prop_map(boost::make_vector_property_map(index_map)) {
 
-		index_map(get(boost::vertex_index, grid));
+		
 
-		// TODO: rewrite sample vertex
+		// TODO: rewrite init loop
 		// initialize
 		for (int i = 0; i < 3; ++i)
 			for (int j = 0; j < 2; ++j)
-				put(props, Traits::vertex_descriptor {{i, j}}, sampleVertex{i,j,false});
+				put(props, Traits::vertex_descriptor {{i, j}}, BookleVertex{i, j, false});
 
 			printf("Created graph of %d * %d * %d\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
 		}
