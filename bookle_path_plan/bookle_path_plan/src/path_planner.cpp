@@ -7,7 +7,7 @@
 
 namespace bookle {
 
-	PathPlan::PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh) : yaw_int(-1), target_id(-1), last_planned_target(-1) {
+	PathPlan::PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh) : goal((Point){0, 0, 0}), start((Point){0, 0, 0}) {
 		// subscriptions
 		goal_sub_ = nh.subscribe("bookle/goal_pos", 1, &PathPlan::GoalCallback, this);
 
@@ -47,7 +47,7 @@ namespace bookle {
 
 		// Set starting point from TF
 		tf::Quaternion tf_q = transform.getRotation();
-		getRPYFromQuaternion(tf_q.x, tf_q.y, tf_q.z, tf_q.w, r, p, y);
+		getRPYFromQuaternion(tf_q.x(), tf_q.y(), tf_q.z(), tf_q.w(), r, p, y);
 		start = (Point) {getPoseInt(transform.getOrigin().x()), getPoseInt(transform.getOrigin().y()), getYawEnum(y)};
 
 	}
@@ -79,12 +79,19 @@ namespace bookle {
 	void PathPlan::getRPYFromQuaternion(float qx, float qy, float qz, float qw, float& r, float& p, float& y) {
 		tf::Quaternion q(qx, qy, qz, qw);
 		tf::Matrix3x3 m(q);
-		m.getRPY(r, p, y);
+
+		tfScalar rt, pt, yt;
+		m.getRPY(rt, pt, yt);
+		r = rt;
+		p = pt;
+		y = yt;
 	}
 
 	void PathPlan::getQuaternionFromRPY(float r, float p, float y, float& qx, float& qy, float& qz, float& qw) {
 		tf::Matrix3x3 m;
-		m.setRPY(r, p, y);
+
+		tfScalar rt = r, pt = p, yt = y;
+		m.setRPY(rt, pt, yt);
 		
 		tf::Quaternion q;
 		m.getRotation(q);

@@ -3,7 +3,7 @@
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
-namespace path_plan {
+namespace bookle {
 	class PathPlannerNodelet : public nodelet::Nodelet {
 	public:
 		PathPlannerNodelet(){}
@@ -16,4 +16,4 @@ namespace path_plan {
 	};
 }
 
-PLUGINLIB_DECLARE_CLASS(path_plan, PathPlannerNodelet, path_plan::PathPlannerNodelet, nodelet::Nodelet);
+PLUGINLIB_DECLARE_CLASS(bookle_path_plan, PathPlannerNodelet, bookle::PathPlannerNodelet, nodelet::Nodelet);

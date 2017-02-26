@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bookle_path_plan)
 
+# check c++11 / c++0x
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+  set(CMAKE_CXX_FLAGS "-std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+  set(CMAKE_CXX_FLAGS "-std=c++0x")
+else()
+  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -12,10 +24,10 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   std_msgs
-)
+  )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -25,7 +37,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   PathPlan.msg
-)
+  )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -33,7 +45,7 @@ generate_messages(
   geometry_msgs
   nav_msgs
   std_msgs
-)
+  )
 
 ###################################
 ## catkin specific configuration ##
@@ -44,7 +56,7 @@ catkin_package(
  LIBRARIES bookle_path_plan
  CATKIN_DEPENDS cmake_modules geometry_msgs message_runtime nav_msgs nodelet roscpp std_msgs
  DEPENDS system_lib
-)
+ )
 
 ###########
 ## Build ##
@@ -53,36 +65,36 @@ catkin_package(
 include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-)
+  )
 
 ## Declare a C++ library
 add_library(path_planner
   src/path_planner.cpp
-)
+  )
 target_link_libraries(path_planner
   ${catkin_LIBRARIES}
-)
+  )
 add_library(boost_grid_graph
   src/boost_grid_graph.cpp
-)
+  )
 target_link_libraries(boost_grid_graph
   ${catkin_LIBRARIES}
-)
+  )
 add_library(graph_ros_interface
   src/graph_ros_interface.cpp
-)
+  )
 target_link_libraries(graph_ros_interface
   ${catkin_LIBRARIES}
-)
+  )
 
 add_dependencies(path_planner 
-path_planner_generate_messages_cpp
-)
+  path_planner_generate_messages_cpp
+  )
 
 add_library(path_planner_nodelet src/path_planner_nodelet.cpp)
 target_link_libraries(path_planner_nodelet
   ${catkin_LIBRARIES}
-)
+  )
 
 ## Declare a C++ executable
 add_executable(path_planner_node src/path_planner_node.cpp)
@@ -91,7 +103,7 @@ add_executable(path_planner_node src/path_planner_node.cpp)
 target_link_libraries(path_planner_node
   ${catkin_LIBRARIES}
   path_planner
-)
+  )
 
 #############
 ## Install ##
@@ -105,16 +117,16 @@ install(TARGETS path_planner path_planner_node path_planner_nodelet
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+  )
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/bookle_path_plan/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
-)
+  )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES nodelet_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+  )

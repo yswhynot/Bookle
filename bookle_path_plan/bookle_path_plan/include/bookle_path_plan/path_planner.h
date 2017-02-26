@@ -10,11 +10,11 @@
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 
-#include <bookle_path_plan/grid_graph.h>
-
 #include <vector>
 #include <utility>
 #include <limits>
+
+#include <bookle_path_plan/graph_ros_interface.h>
 
 namespace bookle {
 	const int MAX_INT = 8888;
@@ -45,7 +45,7 @@ namespace bookle {
 		void getQuaternionFromRPY(float r, float p, float y, float& qx, float& qy, float& qz, float& qw);
 
 	private:
-		ros::Subscriber goal_sub_
+		ros::Subscriber goal_sub_;
 		ros::Publisher path_pub_;
 		tf::TransformListener tf_listener;
 

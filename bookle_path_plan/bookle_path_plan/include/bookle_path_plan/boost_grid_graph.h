@@ -5,11 +5,14 @@
 #include <stdlib.h>
 #include <vector>
 
+#include <ros/console.h>
+
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/grid_graph.hpp>
 #include <boost/graph/properties.hpp>
-#include <boost/vector_property_map.hpp>
+// #include <boost/vector_property_map.hpp>
+#include <boost/property_map/vector_property_map.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -19,9 +22,9 @@
 
 
 namespace bookle {
-	const int X_LENGTH = 100;
-	const int Y_LENGTH = 100;
-	const int Z_LENGTH = 4;
+	const long unsigned int X_LENGTH = 100;
+	const long unsigned int Y_LENGTH = 100;
+	const long unsigned int Z_LENGTH = 4;
 	const int GRID_RANK = 3;
 
 	typedef boost::grid_graph<GRID_RANK> bGrid;
@@ -31,8 +34,8 @@ namespace bookle {
 	typedef bTraits::vertices_size_type bVerSizeType;
 	// typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
 
-	typedef boost::property_map<Graph, boost::vertex_index_t>::const_type bVertexIdMap;
-	typedef boost::property_map<Graph, boost::edge_index_t>::const_type bEdgeIdMap;
+	typedef boost::property_map<bGrid, boost::vertex_index_t>::const_type bVertexIdMap;
+	typedef boost::property_map<bGrid, boost::edge_index_t>::const_type bEdgeIdMap;
 
 	// A hash function for vertices
 	struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
@@ -57,7 +60,7 @@ namespace bookle {
 
 	// TODO: check hash set
 	typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
-	typedef boost::vertex_subset_complement_filter<grid, bVertexSet>::type bFilteredGrid;
+	typedef boost::vertex_subset_complement_filter<bGrid, bVertexSet>::type bFilteredGrid;
 	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
 
 
@@ -78,7 +81,7 @@ namespace bookle {
 		}
 
 	private:
-		bGrid InitGrid(int x, int y, int z);
+		bGrid InitGrid(long unsigned int x, long unsigned int y, long unsigned int z);
 		bFilteredGrid InitBarrierGrid();
 
 	private:
@@ -88,7 +91,7 @@ namespace bookle {
 	private:
 		// Goal found exception
 		struct GoalFoundException {
-			printf("Goal found!\n");
+			// ROS_INFO("%s", "Goal found!");
 		};
 
 		// A* visitor
@@ -137,10 +140,9 @@ namespace bookle {
 		BookleHeuristic heuristic;
 		AStarVisitor astar_visitor;
 
-		boost::dynamic_properties dp;
 		std::vector<BookleVertex> planned_traj_vec;
 
-	} // end class
+	}; // end class
 } // end namespace
 
 #endif

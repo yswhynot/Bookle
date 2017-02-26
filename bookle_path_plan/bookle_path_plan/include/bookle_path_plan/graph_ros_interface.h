@@ -6,6 +6,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Path.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Int32.h>
 

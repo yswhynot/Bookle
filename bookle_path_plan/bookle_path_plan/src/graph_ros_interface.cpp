@@ -4,7 +4,7 @@ namespace bookle {
 	GraphHandler::GraphHandler() : width(0), height(0), resolution(0.0) {}
 
 	bool GraphHandler::UpdateGridGraph(nav_msgs::OccupancyGrid& input_map) {
-		nav_msgs::OccupancyGrid map = *input_map;
+		nav_msgs::OccupancyGrid map = input_map;
 		width = map.info.width;
 		height = map.info.height;
 		resolution = map.info.resolution;
@@ -33,7 +33,7 @@ namespace bookle {
 		nav_msgs::Path tmp_nav_path;
 		grid_graph.getPlannedPath(tmp_path);
 
-		// Parse vertex set if not emplty
+		// Parse vertex set if not empty
 		if(!tmp_path.empty()) {
 			for(std::vector<BookleVertex>::iterator it = tmp_path.begin(); it = tmp_path.end(); it++) {
 				geometry_msgs::PoseStamped g;

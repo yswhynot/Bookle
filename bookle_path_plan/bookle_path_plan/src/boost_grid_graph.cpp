@@ -1,19 +1,19 @@
 #include "bookle_path_plan/boost_grid_graph.h"
 
 namespace bookle {
-	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()), index_map(get(boost::vertex_index, grid)), prop_map(boost::make_vector_property_map(index_map)) {
+	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()), index_map(get(boost::vertex_index, grid)), prop_map(index_map) {
 
 			// init		
-			for(int i = 0; i < X_LENGTH; i++)
-				for(int j = 0; j < Y_LENGTH; j++)
-					for(int k = 0; k < Z_LENGTH; k++)
+			for(long unsigned int i = 0; i < X_LENGTH; i++)
+				for(long unsigned int j = 0; j < Y_LENGTH; j++)
+					for(long unsigned int k = 0; k < Z_LENGTH; k++)
 						put(prop_map, bVertexDescriptor {{i, j, k}}, BookleVertex(i, j, k));
 
-			ROS_INFO("Created graph of %d * %d * %d\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
+			ROS_INFO("Created graph of %lu * %lu * %lu\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
 		}
-		GridGraph::~GridGraph();
+		GridGraph::~GridGraph() {}
 
-		bGrid GridGraph::InitGrid(int x, int y, int z) {
+		bGrid GridGraph::InitGrid(long unsigned int x, long unsigned int y, long unsigned int z) {
 			boost::array<std::size_t, GRID_RANK> length_array = { {x, y, z} };
 			boost::array<bool, GRID_RANK> wrap_array = { {false, false, true} };
 			return bGrid(length_array, wrap_array); 
