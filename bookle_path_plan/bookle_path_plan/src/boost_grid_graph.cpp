@@ -73,6 +73,7 @@ namespace bookle {
 
 	void GridGraph::UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z) {
 		goal = bVertexDescriptor{{x, y, z}};
+		ROS_INFO("Received goal: %lu, %lu, %lu", x, y, z);
 	}
 	void GridGraph::UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z) {
 		start = bVertexDescriptor{{x, y, z}};

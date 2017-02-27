@@ -33,7 +33,11 @@ namespace bookle {
 		float r, p, y;
 		geometry_msgs::Quaternion q = tmp_pose.pose.orientation;
 		getRPYFromQuaternion(q.x, q.y, q.z, q.w, r, p, y);
+		ROS_INFO("Goal callback - r: %f, p: %f, y: %f", r, p, y);
+
 		goal = (Point) {getPoseInt(tmp_pose.pose.position.x), getPoseInt(tmp_pose.pose.position.y), getYawEnum(y)};
+		// ROS_INFO("Goal callback - x: %lu, y: %lu, theta: %lu", goal.x, goal.y, goal.theta);
+
 
 		// Read TF msgs
 		tf::StampedTransform transform;
@@ -49,7 +53,7 @@ namespace bookle {
 		tf::Quaternion tf_q = transform.getRotation();
 		getRPYFromQuaternion(tf_q.x(), tf_q.y(), tf_q.z(), tf_q.w(), r, p, y);
 		start = (Point) {getPoseInt(transform.getOrigin().x()), getPoseInt(transform.getOrigin().y()), getYawEnum(y)};
-
+		ROS_INFO("Start tf - x: %lu, y: %lu, theta: %lu", start.x, start.y, start.theta);
 	}
 
 	void PathPlan::UpdateStart(Point& input_p) { start = input_p; }
@@ -57,14 +61,14 @@ namespace bookle {
 	void PathPlan::UpdateGoal(Point& input_p) { goal = input_p; }
 
 	long unsigned int PathPlan::getYawEnum(float yaw_f) {
-		if(yaw_f ==  -1) 
-			return -1;
+		if(yaw_f < -4) 
+			return 888;
 
-		long unsigned int tmp = lround((yaw_f + 3.141592) / 1.570796);
-		if(tmp > -1 && tmp < 4)
+		long unsigned int tmp = std::lround((yaw_f + 3.141592) / 1.570796);
+		if(tmp < 4)
 			return tmp;
 
-		return -1;
+		return 999;
 	}
 
 	float PathPlan::getYawFloat(int yaw_i) {
