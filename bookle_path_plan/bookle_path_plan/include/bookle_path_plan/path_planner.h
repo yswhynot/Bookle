@@ -13,6 +13,7 @@
 #include <vector>
 #include <utility>
 #include <limits>
+#include <cmath>
 
 #include <bookle_path_plan/graph_ros_interface.h>
 
@@ -22,7 +23,7 @@ namespace bookle {
 	enum Direction {BACK, RIGHT, FRONT, LEFT};
 
 	struct Point {
-		int x, y, theta;
+		long unsigned int x, y, theta;
 	};
 
 	class PathPlan {
@@ -38,9 +39,9 @@ namespace bookle {
 	private:
 		void UpdateStart(Point& input_p);
 		void UpdateGoal(Point& input_p);
-		int getYawEnum(float yaw_f);
+		long unsigned int getYawEnum(float yaw_f);
 		float getYawFloat(int yaw_i);
-		int getPoseInt(float input_float);
+		long unsigned int getPoseInt(float input_float);
 		void getRPYFromQuaternion(float qx, float qy, float qz, float qw, float& r, float& p, float& y);
 		void getQuaternionFromRPY(float r, float p, float y, float& qx, float& qy, float& qz, float& qw);
 

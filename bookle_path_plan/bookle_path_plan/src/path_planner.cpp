@@ -56,11 +56,11 @@ namespace bookle {
 
 	void PathPlan::UpdateGoal(Point& input_p) { goal = input_p; }
 
-	int PathPlan::getYawEnum(float yaw_f) {
+	long unsigned int PathPlan::getYawEnum(float yaw_f) {
 		if(yaw_f ==  -1) 
 			return -1;
 
-		int tmp = (int)round((yaw_f + 3.141592) / 1.570796);
+		long unsigned int tmp = lround((yaw_f + 3.141592) / 1.570796);
 		if(tmp > -1 && tmp < 4)
 			return tmp;
 
@@ -71,9 +71,9 @@ namespace bookle {
 		return (float)yaw_i * 1.570796 - 3.141592;
 	}
 
-	int PathPlan::getPoseInt(float input_float) {
+	long unsigned int PathPlan::getPoseInt(float input_float) {
 		// When input is directly mapped to int 
-		return (int)input_float;
+		return std::lround(input_float);
 	}
 
 	void PathPlan::getRPYFromQuaternion(float qx, float qy, float qz, float qw, float& r, float& p, float& y) {

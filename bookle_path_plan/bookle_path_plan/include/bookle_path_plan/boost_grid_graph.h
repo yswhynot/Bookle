@@ -63,17 +63,49 @@ namespace bookle {
 	typedef boost::vertex_subset_complement_filter<bGrid, bVertexSet>::type bFilteredGrid;
 	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
 
+	// Goal found exception
+	struct GoalFoundException {
+		// ROS_INFO("%s", "Goal found!");
+	};
+
+	// A* visitor
+	struct AStarVisitor : public boost::default_astar_visitor {
+		AStarVisitor();
+		AStarVisitor(bVertexDescriptor input_goal) : goal(input_goal) {};
+		void setGoal(bVertexDescriptor& input_goal) { goal = input_goal; }
+		void examine_vertex(bVertexDescriptor input_vertex, const bFilteredGrid& input_filtered_grid) {
+			if(input_vertex == goal)
+				throw GoalFoundException();
+		}
+
+	private:
+		bVertexDescriptor goal;
+	};
+
+	// Using manhattan distance as heuristic function
+	struct BookleHeuristic : public boost::astar_heuristic<bFilteredGrid, double> {
+		BookleHeuristic();
+		BookleHeuristic(bVertexDescriptor input_goal) : goal(input_goal) {};
+		void setGoal(bVertexDescriptor& input_goal) { goal = input_goal; }
+		double operator()(bVertexDescriptor v) {
+			return (abs(goal[0] - v[0]) + abs(goal[1] - v[1]) + abs(goal[2] - v[2]));
+		}
+
+	private:
+		bVertexDescriptor goal;
+	};
+
 
 
 	class GridGraph {
 	public:
 		GridGraph();
-		~GridGraph();
+		~GridGraph() {}
 		bool AStarSearch();
 		void getPlannedPath(std::vector<BookleVertex>& des_path);
 		bool UpdateBarrier(bVertexSet& input_graph);
-		void UpdateGoal(bVertexDescriptor& input_goal);
-		void UpdateStart(bVertexDescriptor& input_start);
+		void UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z);
+		void UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z);
 
 		bVerSizeType getLengthByDim(std::size_t dim) const { return grid.length(dim); }
 		bool hasBarrier(bVertexDescriptor input_v) const {
@@ -87,40 +119,6 @@ namespace bookle {
 	private:
 		typedef boost::unordered_map<bVertexDescriptor, bVertexDescriptor, bVertexHash> bPredMap;
 		typedef boost::unordered_map<bVertexDescriptor, double, bVertexHash> bDistMap;
-
-	private:
-		// Goal found exception
-		struct GoalFoundException {
-			// ROS_INFO("%s", "Goal found!");
-		};
-
-		// A* visitor
-		struct AStarVisitor : public boost::default_astar_visitor {
-			AStarVisitor();
-			AStarVisitor(bVertexDescriptor input_goal) : goal(input_goal) {};
-			void setGoal(bVertexDescriptor& input_goal) { goal = input_goal; }
-			void examine_vertex(bVertexDescriptor input_vertex, const bFilteredGrid& input_filtered_grid) {
-				if(input_vertex == goal)
-					throw GoalFoundException();
-			}
-
-		private:
-			bVertexDescriptor goal;
-		};
-
-		// Using manhattan distance as heuristic function
-		struct BookleHeuristic : public boost::astar_heuristic<bFilteredGrid, double> {
-			BookleHeuristic();
-			BookleHeuristic(bVertexDescriptor input_goal) : goal(input_goal) {};
-			void setGoal(bVertexDescriptor& input_goal) { goal = input_goal; }
-			double operator()(bVertexDescriptor v) {
-				return (abs(goal[0] - v[0]) + abs(goal[1] - v[1]) + abs(goal[2] - v[2]));
-			}
-
-		private:
-			bVertexDescriptor goal;
-		};
-
 
 	private:
 		bGrid grid;
