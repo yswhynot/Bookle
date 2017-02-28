@@ -47,7 +47,7 @@ namespace bookle {
 			planned_traj.insert(start);
 			planned_traj_vec.push_back(get(prop_map, start));
 
-			printf("Path planned!\n");
+			ROS_INFO("Path planned!!");
 			return true;
 		}
 
@@ -68,12 +68,15 @@ namespace bookle {
 			// TODO: Check assignment operator
 			// filtered_grid = InitBarrierGrid();
 			// boost::make_vertex_subset_complement_filter(grid, barrier_set);
+		return true;
 
 	}
 
 	void GridGraph::UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z) {
 		goal = bVertexDescriptor{{x, y, z}};
 		ROS_INFO("Received goal: %lu, %lu, %lu", x, y, z);
+
+		AStarSearch();
 	}
 	void GridGraph::UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z) {
 		start = bVertexDescriptor{{x, y, z}};

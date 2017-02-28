@@ -13,12 +13,16 @@
 namespace bookle {
 	const int BARRIER_THRESHOLD = 50;
 
+	struct Point {
+		long unsigned int x, y, theta;
+	};
+
 	struct GraphHandler {
 		GraphHandler() : width(0), height(0), resolution(0.0) {}
 		bool UpdateGridGraph(const nav_msgs::OccupancyGrid& input_map);
 		bool LoadPlannedPath(nav_msgs::Path& result_path);
-		void UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z);
-		void UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z);
+		void UpdateGoal(Point& input_point);
+		void UpdateStart(Point& input_point);
 
 		GridGraph grid_graph;
 		int width;

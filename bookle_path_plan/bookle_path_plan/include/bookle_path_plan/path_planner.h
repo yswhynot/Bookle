@@ -22,10 +22,6 @@ namespace bookle {
 
 	enum Direction {BACK, RIGHT, FRONT, LEFT};
 
-	struct Point {
-		long unsigned int x, y, theta;
-	};
-
 	class PathPlan {
 	public:
 		PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh);
@@ -37,8 +33,6 @@ namespace bookle {
 
 	// Utils
 	private:
-		void UpdateStart(Point& input_p);
-		void UpdateGoal(Point& input_p);
 		long unsigned int getYawEnum(float yaw_f);
 		float getYawFloat(int yaw_i);
 		long unsigned int getPoseInt(float input_float);
@@ -47,6 +41,7 @@ namespace bookle {
 
 	private:
 		ros::Subscriber goal_sub_;
+		ros::Subscriber map_sub_;
 		ros::Publisher path_pub_;
 		tf::TransformListener tf_listener;
 

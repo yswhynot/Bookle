@@ -9,7 +9,8 @@ namespace bookle {
 
 	PathPlan::PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh) : goal((Point){0, 0, 0}), start((Point){0, 0, 0}) {
 		// subscriptions
-		goal_sub_ = nh.subscribe("bookle/goal_pos", 1, &PathPlan::GoalCallback, this);
+		goal_sub_ = nh.subscribe("/bookle/goal_pos", 1, &PathPlan::GoalCallback, this);
+		map_sub_ = nh.subscribe("/map", 1, &PathPlan::MapCallback, this);
 
 		// publications
 		path_pub_ = nh.advertise<nav_msgs::Path>("bookle/planned_path", 1);
@@ -17,12 +18,14 @@ namespace bookle {
 
 	PathPlan::~PathPlan() {
 		goal_sub_.shutdown();
+		map_sub_.shutdown();
 	}
 
 	void PathPlan::MapCallback(const nav_msgs::OccupancyGrid::ConstPtr& input_map) {
 		gmap = *input_map;
 
 		// Load map into the GridGraph
+		ROS_INFO("New map received!");
 		gh.UpdateGridGraph(gmap);
 	}
 
@@ -42,7 +45,7 @@ namespace bookle {
 		// Read TF msgs
 		tf::StampedTransform transform;
 		try{
-			tf_listener.lookupTransform("/map", "/base_footprint",  
+			tf_listener.lookupTransform("/odom", "/base_footprint",  
 				ros::Time(0), transform);
 		}
 		catch (tf::TransformException ex){
@@ -52,13 +55,13 @@ namespace bookle {
 		// Set starting point from TF
 		tf::Quaternion tf_q = transform.getRotation();
 		getRPYFromQuaternion(tf_q.x(), tf_q.y(), tf_q.z(), tf_q.w(), r, p, y);
-		start = (Point) {getPoseInt(transform.getOrigin().x()), getPoseInt(transform.getOrigin().y()), getYawEnum(y)};
+		start = (Point) {getPoseInt(transform.getOrigin().x() * 100 / 2), getPoseInt( (transform.getOrigin().y() + 1) * 100 / 2), getYawEnum(y)};
 		ROS_INFO("Start tf - x: %lu, y: %lu, theta: %lu", start.x, start.y, start.theta);
+
+		// Update goal and start
+		gh.UpdateGoal(goal);
+		gh.UpdateStart(start);
 	}
-
-	void PathPlan::UpdateStart(Point& input_p) { start = input_p; }
-
-	void PathPlan::UpdateGoal(Point& input_p) { goal = input_p; }
 
 	long unsigned int PathPlan::getYawEnum(float yaw_f) {
 		if(yaw_f < -4) 
@@ -76,6 +79,7 @@ namespace bookle {
 	}
 
 	long unsigned int PathPlan::getPoseInt(float input_float) {
+		// ROS_INFO("Pose float: %f", input_float);
 		// When input is directly mapped to int 
 		return std::lround(input_float);
 	}

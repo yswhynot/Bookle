@@ -21,8 +21,10 @@ namespace bookle {
 			} // end for y
 		} // end for x
 
-		if(grid_graph.UpdateBarrier(barrier_set))
+		if(grid_graph.UpdateBarrier(barrier_set)) {
+			ROS_INFO("Update success!");
 			return true;
+		}
 		
 		return false;
 	}
@@ -49,11 +51,11 @@ namespace bookle {
 		return false;
 	}
 
-	void GraphHandler::UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z) {
-		grid_graph.UpdateGoal(x, y, z);
+	void GraphHandler::UpdateGoal(Point& input_point) {
+		grid_graph.UpdateGoal(input_point.x, input_point.y, input_point.theta);
 	}
 
-	void GraphHandler::UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z) {
-		grid_graph.UpdateStart(x, y, z);
+	void GraphHandler::UpdateStart(Point& input_point) {
+		grid_graph.UpdateStart(input_point.x, input_point.y, input_point.theta);
 	}
 }
