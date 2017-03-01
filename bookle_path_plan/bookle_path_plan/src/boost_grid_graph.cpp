@@ -1,9 +1,9 @@
 #include "bookle_path_plan/boost_grid_graph.h"
 
 namespace bookle {
-	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), filtered_grid(InitBarrierGrid()), index_map(get(boost::vertex_index, grid)), prop_map(index_map) {
+	GridGraph::GridGraph() : grid(InitGrid(X_LENGTH, Y_LENGTH, Z_LENGTH)), index_map(get(boost::vertex_index, grid)), prop_map(index_map) {
 
-			// init		
+		// init	
 		for(long unsigned int i = 0; i < X_LENGTH; i++) {
 			for(long unsigned int j = 0; j < Y_LENGTH; j++) {
 				for(long unsigned int k = 0; k < Z_LENGTH; k++) 
@@ -34,9 +34,19 @@ namespace bookle {
 		heuristic.setGoal(goal);
 		astar_visitor.setGoal(goal);
 
+		ROS_INFO("Begin A* plan");
+
+		bFilteredGrid filtered_grid(boost::make_vertex_subset_complement_filter(grid, barrier_set));
+
 		try {
+			// segfault here
 			astar_search(filtered_grid, start, heuristic, boost::weight_map(weight).predecessor_map(pred_map).distance_map(dist_map).visitor(astar_visitor));
+		} catch (const std::exception& ex) {
+			std::cout << ex.what() << std::endl;
+		} catch (const std::string& ex) {
+			std::cout << ex << std::endl;
 		} catch (GoalFoundException e) {
+			ROS_INFO("Goal found!");
 			planned_traj_vec.clear();
 
 			for(bVertexDescriptor vd_it = goal; vd_it != start; vd_it = predecessor[vd_it]) {
@@ -49,7 +59,7 @@ namespace bookle {
 
 			ROS_INFO("Path planned!!");
 			return true;
-		}
+		} 
 
 		return false;
 	}
@@ -64,10 +74,11 @@ namespace bookle {
 		barrier_set.clear();
 		barrier_set = input_barrier;
 
-			// Update filtered set
-			// TODO: Check assignment operator
-			// filtered_grid = InitBarrierGrid();
-			// boost::make_vertex_subset_complement_filter(grid, barrier_set);
+		ROS_INFO("Update barrier success");
+
+		// Update filtered set
+		// TODO: Check assignment operator
+		// filtered_grid = std::move(boost::make_vertex_subset_complement_filter(grid, barrier_set));
 		return true;
 
 	}

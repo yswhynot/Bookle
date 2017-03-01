@@ -11,12 +11,16 @@ namespace bookle {
 
 		bVertexSet barrier_set;
 
+		ROS_INFO("In UpdateGridGraph");
+
 		for(long unsigned int x = 0; x < height; x++) {
 			for(long unsigned int y = 0; y < width; y++) {
 				if(map.data[height * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
-					for(long unsigned int z = 0; z < Z_LENGTH; z++)
+					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
+						// ROS_INFO("Insert barrier at %lu, %lu, %lu", x, y, z);
 						barrier_set.insert(bVertexDescriptor {{x, y, z}});
+					}
 				}
 			} // end for y
 		} // end for x

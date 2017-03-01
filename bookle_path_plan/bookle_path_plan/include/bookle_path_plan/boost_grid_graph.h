@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <iostream>
 
 #include <ros/console.h>
 
@@ -90,9 +91,7 @@ namespace bookle {
 
 	public:
 		// Goal found exception
-		struct GoalFoundException {
-			// ROS_INFO("%s", "Goal found!");
-		};
+		struct GoalFoundException {};
 
 		// A* visitor
 		struct AStarVisitor : public boost::default_astar_visitor {
@@ -128,7 +127,7 @@ namespace bookle {
 		bVectorPropMap prop_map;
 
 		bVertexSet planned_traj;
-		bFilteredGrid filtered_grid;
+		// bFilteredGrid filtered_grid;
 		bVertexSet barrier_set;
 		double path_length;
 
