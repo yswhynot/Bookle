@@ -56,11 +56,16 @@ namespace bookle {
 		tf::Quaternion tf_q = transform.getRotation();
 		getRPYFromQuaternion(tf_q.x(), tf_q.y(), tf_q.z(), tf_q.w(), r, p, y);
 		start = (Point) {getPoseInt(transform.getOrigin().x() * 100 / 2), getPoseInt( (transform.getOrigin().y() + 1) * 100 / 2), getYawEnum(y)};
-		ROS_INFO("Start tf - x: %lu, y: %lu, theta: %lu", start.x, start.y, start.theta);
+		// ROS_INFO("Start tf - x: %lu, y: %lu, theta: %lu", start.x, start.y, start.theta);
 
 		// Update goal and start
-		gh.UpdateGoal(goal);
 		gh.UpdateStart(start);
+		gh.UpdateGoal(goal);
+
+		// Load planned path
+		nav_msgs::Path result_path;
+		gh.LoadPlannedPath(result_path);
+		path_pub_.publish(result_path);
 	}
 
 	long unsigned int PathPlan::getYawEnum(float yaw_f) {

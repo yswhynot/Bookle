@@ -34,17 +34,24 @@ namespace bookle {
 		heuristic.setGoal(goal);
 		astar_visitor.setGoal(goal);
 
-		ROS_INFO("Begin A* plan");
+		// ROS_INFO("Begin A* plan");
 
 		bFilteredGrid filtered_grid(boost::make_vertex_subset_complement_filter(grid, barrier_set));
+
+		// Check goal & start not blocked
+		// if(barrier_set.find(goal) != barrier_set.end())
+			// ROS_INFO("Goal in barrier");
+		// else ROS_INFO("Goal in barrier");
+
+		// if(barrier_set.find(start) != barrier_set.end())
+			// ROS_INFO("Start in barrier");
+		// else ROS_INFO("Start in barrier");
+			
 
 		try {
 			// segfault here
 			astar_search(filtered_grid, start, heuristic, boost::weight_map(weight).predecessor_map(pred_map).distance_map(dist_map).visitor(astar_visitor));
-		} catch (const std::exception& ex) {
-			std::cout << ex.what() << std::endl;
-		} catch (const std::string& ex) {
-			std::cout << ex << std::endl;
+			// ROS_INFO("After A* seartch");
 		} catch (GoalFoundException e) {
 			ROS_INFO("Goal found!");
 			planned_traj_vec.clear();
@@ -85,11 +92,12 @@ namespace bookle {
 
 	void GridGraph::UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z) {
 		goal = bVertexDescriptor{{x, y, z}};
-		ROS_INFO("Received goal: %lu, %lu, %lu", x, y, z);
+		ROS_INFO("Update goal: %lu, %lu, %lu", x, y, z);
 
 		AStarSearch();
 	}
 	void GridGraph::UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z) {
 		start = bVertexDescriptor{{x, y, z}};
+		ROS_INFO("Update start: %lu, %lu, %lu", x, y, z);
 	}
 }

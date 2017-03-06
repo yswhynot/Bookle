@@ -17,8 +17,8 @@ namespace bookle {
 			for(long unsigned int y = 0; y < width; y++) {
 				if(map.data[height * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
+					// ROS_INFO("Insert barrier at %lu, %lu", x, y);
 					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
-						// ROS_INFO("Insert barrier at %lu, %lu, %lu", x, y, z);
 						barrier_set.insert(bVertexDescriptor {{x, y, z}});
 					}
 				}
@@ -40,13 +40,16 @@ namespace bookle {
 
 		// Parse vertex set if not empty
 		if(!tmp_path.empty()) {
+			ROS_INFO("Planned Path:");
 			for(std::vector<BookleVertex>::iterator it = tmp_path.begin(); it != tmp_path.end(); it++) {
 				geometry_msgs::PoseStamped g;
 				g.pose.position.x = (float)it->x;
 				g.pose.position.y = (float)it->y;
 				g.pose.position.z = (float)it->z;
 				tmp_nav_path.poses.push_back(g);
+				printf("(%f %f %f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
 			}
+			printf("\n");
 
 			result_path = tmp_nav_path;
 			return true;
@@ -60,6 +63,7 @@ namespace bookle {
 	}
 
 	void GraphHandler::UpdateStart(Point& input_point) {
+		// ROS_INFO("Interface start");
 		grid_graph.UpdateStart(input_point.x, input_point.y, input_point.theta);
 	}
 }
