@@ -6,5 +6,11 @@ int main(int argc, char **argv) {
 	ros::NodeHandle nh;
 	ros::NodeHandle pnh("~");
 	bookle::TFPub tf_pub(nh, pnh);
-	ros::spin();
+	
+	ros::Rate loop_rate(10);
+	while(ros::ok()) {
+		tf_pub.PublishCurrentPose();
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
 }

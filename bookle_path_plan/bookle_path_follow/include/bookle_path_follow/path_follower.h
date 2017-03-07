@@ -14,7 +14,7 @@ namespace bookle {
 	};
 	struct fPoint {
 		float x, y, theta;
-	}
+	};
 
 	class PathFollow {
 	public:

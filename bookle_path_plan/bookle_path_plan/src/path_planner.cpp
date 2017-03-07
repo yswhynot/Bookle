@@ -49,7 +49,7 @@ namespace bookle {
 				ros::Time(0), transform);
 		}
 		catch (tf::TransformException ex){
-			ROS_ERROR("%s",ex.what());
+			ROS_ERROR("%s", ex.what());
 		}
 
 		// Set starting point from TF

@@ -3,6 +3,9 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
 
 namespace bookle {
 	
@@ -11,15 +14,16 @@ namespace bookle {
 		TFPub(ros::NodeHandle& nh, ros::NodeHandle&pnh);
 		~TFPub();
 
-	private:
+	public:
 		void PublishCurrentPose();
 
 	private:
 		ros::Publisher pose_pub_;
 		tf::TransformListener tf_listener;
 		tf::StampedTransform transform;
+		geometry_msgs::TransformStamped trans_stamp;
 		geometry_msgs::PoseStamped pose;
-	}
+	};
 }
 
 #endif
