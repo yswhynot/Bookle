@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>odom_pub</name>
+  <name>bookle_path_follow</name>
   <version>0.0.0</version>
-  <description>The odom_pub package</description>
+  <description>The path_follow package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/odom_pub</url> -->
+  <!-- <url type="website">http://wiki.ros.org/path_follow</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -41,23 +41,19 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cmake_modules</build_depend>
-  <build_depend>gazebo_msgs</build_depend>
-  <build_depend>gazebo_ros</build_depend>
+  <build_depend>geometry_msgs</build_depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>roscpp</build_depend>
   <build_depend>nav_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>tf</build_depend>
   <run_depend>cmake_modules</run_depend>
-  <run_depend>gazebo_msgs</run_depend>
-  <run_depend>gazebo_ros</run_depend>
-  <run_depend>message_runtime</run_depend>
-  <run_depend>roscpp</run_depend>
+  <run_depend>geometry_msgs</run_depend>
   <run_depend>nav_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
+  <run_depend>nodelet</run_depend>
+  <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>tf</run_depend>
+  <run_depend>message_runtime</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
