@@ -24,7 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   std_msgs
-  tf
+  # tf
   )
 
 ## System dependencies are found with CMake's conventions

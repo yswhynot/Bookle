@@ -11,7 +11,7 @@ namespace bookle {
 
 		bVertexSet barrier_set;
 
-		ROS_INFO("In UpdateGridGraph");
+		// ROS_INFO("In UpdateGridGraph");
 
 		for(long unsigned int x = 0; x < height; x++) {
 			for(long unsigned int y = 0; y < width; y++) {
@@ -49,7 +49,7 @@ namespace bookle {
 				tmp_nav_path.poses.push_back(g);
 				printf("(%f %f %f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
 			}
-			printf("\n");
+			printf("----------------------\n\n");
 
 			result_path = tmp_nav_path;
 			return true;

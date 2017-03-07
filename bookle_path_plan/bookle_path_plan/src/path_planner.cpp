@@ -14,6 +14,7 @@ namespace bookle {
 
 		// publications
 		path_pub_ = nh.advertise<nav_msgs::Path>("bookle/planned_path", 1);
+		pose_int_pub_ = nh.advertise<geometry_msgs::Point>("bookle/current_pose/int", 1);
 	}
 
 	PathPlan::~PathPlan() {
@@ -29,6 +30,32 @@ namespace bookle {
 		gh.UpdateGridGraph(gmap);
 	}
 
+	void PathPlan::CurrentPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& input_pose) {
+		geometry_msgs::PoseStamped tmp_pose = *input_pose;
+
+		float r, p, y;
+		getRPYFromQuaternion(
+			tmp_pose.pose.orientation.x, 
+			tmp_pose.pose.orientation.y,
+			tmp_pose.pose.orientation.z,
+			tmp_pose.pose.orientation.w,
+			r, p, y);
+
+		start = (Point) {
+			getPoseInt(tmp_pose.pose.position.x * 100 / 2), 
+			getPoseInt( (tmp_pose.pose.position.x + 1) * 100 / 2), 
+			getYawEnum(y)};
+		gh.UpdateStart(start);
+
+
+		geometry_msgs::Point tmp_point;
+		tmp_point.x = start.x;
+		tmp_point.y = start.y;
+		tmp_point.theta = start.theta;
+
+		pose_int_pub_.publish(tmp_point);
+	}
+
 	void PathPlan::GoalCallback(const geometry_msgs::PoseStamped::ConstPtr& input_goal) {
 		geometry_msgs::PoseStamped tmp_pose = *input_goal;
 
@@ -36,31 +63,14 @@ namespace bookle {
 		float r, p, y;
 		geometry_msgs::Quaternion q = tmp_pose.pose.orientation;
 		getRPYFromQuaternion(q.x, q.y, q.z, q.w, r, p, y);
-		ROS_INFO("Goal callback - r: %f, p: %f, y: %f", r, p, y);
+		// ROS_INFO("Goal callback - r: %f, p: %f, y: %f", r, p, y);
 
 		goal = (Point) {getPoseInt(tmp_pose.pose.position.x), getPoseInt(tmp_pose.pose.position.y), getYawEnum(y)};
 		// ROS_INFO("Goal callback - x: %lu, y: %lu, theta: %lu", goal.x, goal.y, goal.theta);
 
-
-		// Read TF msgs
-		tf::StampedTransform transform;
-		try{
-			tf_listener.lookupTransform("/odom", "/base_footprint",  
-				ros::Time(0), transform);
-		}
-		catch (tf::TransformException ex){
-			ROS_ERROR("%s", ex.what());
-		}
-
-		// Set starting point from TF
-		tf::Quaternion tf_q = transform.getRotation();
-		getRPYFromQuaternion(tf_q.x(), tf_q.y(), tf_q.z(), tf_q.w(), r, p, y);
-		start = (Point) {getPoseInt(transform.getOrigin().x() * 100 / 2), getPoseInt( (transform.getOrigin().y() + 1) * 100 / 2), getYawEnum(y)};
-		// ROS_INFO("Start tf - x: %lu, y: %lu, theta: %lu", start.x, start.y, start.theta);
-
 		// Update goal and start
-		gh.UpdateStart(start);
 		gh.UpdateGoal(goal);
+		ROS_INFO("Start at: %lu, %lu, %lu", start.x, start.y, start.theta);
 
 		// Load planned path
 		nav_msgs::Path result_path;

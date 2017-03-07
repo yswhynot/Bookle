@@ -98,6 +98,6 @@ namespace bookle {
 	}
 	void GridGraph::UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z) {
 		start = bVertexDescriptor{{x, y, z}};
-		ROS_INFO("Update start: %lu, %lu, %lu", x, y, z);
+		// ROS_INFO("Update start: %lu, %lu, %lu", x, y, z);
 	}
 }

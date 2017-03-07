@@ -3,12 +3,11 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Point.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Int32.h>
-#include <tf/transform_listener.h>
-#include <tf/transform_datatypes.h>
 
 #include <vector>
 #include <utility>
@@ -30,6 +29,7 @@ namespace bookle {
 	private:
 		void MapCallback(const nav_msgs::OccupancyGrid::ConstPtr& input_map);
 		void GoalCallback(const geometry_msgs::PoseStamped::ConstPtr& input_goal);
+		void CurrentPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& input_pose);
 
 	// Utils
 	private:
@@ -43,7 +43,7 @@ namespace bookle {
 		ros::Subscriber goal_sub_;
 		ros::Subscriber map_sub_;
 		ros::Publisher path_pub_;
-		tf::TransformListener tf_listener;
+		ros::Publisher pose_int_pub_;
 
 		nav_msgs::OccupancyGrid gmap;
 
