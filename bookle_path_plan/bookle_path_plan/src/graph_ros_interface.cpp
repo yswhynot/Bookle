@@ -49,7 +49,7 @@ namespace bookle {
 				tmp_nav_path.poses.push_back(g);
 				printf("(%f %f %f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
 			}
-			printf("----------------------\n\n");
+			printf("\n\n-------------------------------\n\n");
 
 			result_path = tmp_nav_path;
 			return true;

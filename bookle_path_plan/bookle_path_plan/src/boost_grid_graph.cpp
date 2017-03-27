@@ -38,18 +38,7 @@ namespace bookle {
 
 		bFilteredGrid filtered_grid(boost::make_vertex_subset_complement_filter(grid, barrier_set));
 
-		// Check goal & start not blocked
-		// if(barrier_set.find(goal) != barrier_set.end())
-			// ROS_INFO("Goal in barrier");
-		// else ROS_INFO("Goal in barrier");
-
-		// if(barrier_set.find(start) != barrier_set.end())
-			// ROS_INFO("Start in barrier");
-		// else ROS_INFO("Start in barrier");
-			
-
 		try {
-			// segfault here
 			astar_search(filtered_grid, start, heuristic, boost::weight_map(weight).predecessor_map(pred_map).distance_map(dist_map).visitor(astar_visitor));
 			// ROS_INFO("After A* seartch");
 		} catch (GoalFoundException e) {

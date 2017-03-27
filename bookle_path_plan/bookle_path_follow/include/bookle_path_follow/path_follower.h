@@ -18,8 +18,8 @@ namespace bookle {
 		~PathFollow();
 
 	private:
-		void PlannedPathCallback(nav_msgs::Path::ConstPtr input_path);
-		void CurrentPointCallback(geometry_msgs::Point::ConstPtr input_pose);
+		void PlannedPathCallback(const nav_msgs::Path::ConstPtr& input_path);
+		void CurrentPointCallback(const geometry_msgs::Point::ConstPtr& input_pose);
 		void getNextPoint(Point& result);
 		void Point2Pose(geometry_msgs::PoseStamped result);
 
@@ -29,7 +29,7 @@ namespace bookle {
 
 		// TODO: confirm interface with hardware
 		ros::Publisher target_pose_pub_;
-		ros::Publisher current_pose_pub_;
+		// ros::Publisher current_pose_pub_;
 
 		nav_msgs::Path nav_path;
 		std::vector<Point> v_path;

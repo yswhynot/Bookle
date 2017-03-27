@@ -8,6 +8,7 @@
 #include <nav_msgs/Path.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Int32.h>
+#include <tf/transform_datatypes.h>
 
 #include <vector>
 #include <utility>
@@ -42,6 +43,7 @@ namespace bookle {
 	private:
 		ros::Subscriber goal_sub_;
 		ros::Subscriber map_sub_;
+		ros::Subscriber current_sub_;
 		ros::Publisher path_pub_;
 		ros::Publisher pose_int_pub_;
 

@@ -11,6 +11,7 @@ namespace bookle {
 		// subscriptions
 		goal_sub_ = nh.subscribe("/bookle/goal_pos", 1, &PathPlan::GoalCallback, this);
 		map_sub_ = nh.subscribe("/map", 1, &PathPlan::MapCallback, this);
+		current_sub_ = nh.subscribe("/bookle/current_pose", 1, &PathPlan::CurrentPoseCallback, this);
 
 		// publications
 		path_pub_ = nh.advertise<nav_msgs::Path>("bookle/planned_path", 1);
@@ -43,7 +44,7 @@ namespace bookle {
 
 		start = (Point) {
 			getPoseInt(tmp_pose.pose.position.x * 100 / 2), 
-			getPoseInt( (tmp_pose.pose.position.x + 1) * 100 / 2), 
+			getPoseInt( (tmp_pose.pose.position.y + 1) * 100 / 2), 
 			getYawEnum(y)};
 		gh.UpdateStart(start);
 
@@ -51,7 +52,7 @@ namespace bookle {
 		geometry_msgs::Point tmp_point;
 		tmp_point.x = start.x;
 		tmp_point.y = start.y;
-		tmp_point.theta = start.theta;
+		tmp_point.z = start.theta;
 
 		pose_int_pub_.publish(tmp_point);
 	}

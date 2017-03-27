@@ -33,7 +33,7 @@ namespace bookle {
 
 	typedef bTraits::vertex_descriptor bVertexDescriptor;
 	typedef bTraits::vertices_size_type bVerSizeType;
-	// typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
+	typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
 
 	typedef boost::property_map<bGrid, boost::vertex_index_t>::const_type bVertexIdMap;
 	typedef boost::property_map<bGrid, boost::edge_index_t>::const_type bEdgeIdMap;
@@ -63,8 +63,6 @@ namespace bookle {
 	typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
 	typedef boost::vertex_subset_complement_filter<bGrid, bVertexSet>::type bFilteredGrid;
 	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
-
-
 
 	class GridGraph {
 	public:
