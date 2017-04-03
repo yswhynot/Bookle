@@ -32,6 +32,7 @@ namespace bookle {
 	typedef boost::graph_traits<bGrid> bTraits;
 
 	typedef bTraits::vertex_descriptor bVertexDescriptor;
+	typedef bTraits::edge_descriptor bEdgeDescriptor;
 	typedef bTraits::vertices_size_type bVerSizeType;
 	typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
 

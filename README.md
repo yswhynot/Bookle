@@ -21,9 +21,8 @@ Download the `git clone https://github.com/ros-perception/slam_gmapping.git` and
 
 Run with `roslaunch gmapping slam_gmapping.launch`. This takes input directly from the ros message.
 
-## Bookle Interface
-Publish estimate and actual pose with `rosrun bookle_interface bookle_interface`
+## Bookle TF 
+Trasform TF to Pose `rosrun bookle_tf_pub bookle_tf_pub_node`
 
-## Command Velocity
-Send cmd_vel to the robot by `rosrun teleop_twist_keyboard teleop_twist_keyboard.py`
-
+## Path Planning
+To start the path planning node run `rosrun bookle_path_plan bookle_path_plan_node`. To feed it with the goal, run the script `script/goal_post.sh`
