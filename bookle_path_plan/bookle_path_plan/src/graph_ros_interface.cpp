@@ -47,7 +47,7 @@ namespace bookle {
 				g.pose.position.y = (float)it->y;
 				g.pose.position.z = (float)it->z;
 				tmp_nav_path.poses.push_back(g);
-				printf("(%f %f %f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
+				printf("(%.1f %.1f %.1f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
 			}
 			printf("\n\n-------------------------------\n\n");
 

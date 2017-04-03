@@ -11,6 +11,7 @@
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/grid_graph.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 // #include <boost/vector_property_map.hpp>
 #include <boost/property_map/vector_property_map.hpp>
@@ -23,6 +24,9 @@
 
 
 namespace bookle {
+
+	enum Direction {BACK, RIGHT, FRONT, LEFT};
+
 	const long unsigned int X_LENGTH = 100;
 	const long unsigned int Y_LENGTH = 100;
 	const long unsigned int Z_LENGTH = 4;
@@ -35,12 +39,13 @@ namespace bookle {
 	typedef bTraits::edge_descriptor bEdgeDescriptor;
 	typedef bTraits::vertices_size_type bVerSizeType;
 	typedef boost::property<boost::edge_weight_t, int> bEdgeWeight;
+	// typedef boost::property_map<bGrid, boost::edge_weight_t>::const_type bEdgeWeightMap;
 
 	typedef boost::property_map<bGrid, boost::vertex_index_t>::const_type bVertexIdMap;
 	typedef boost::property_map<bGrid, boost::edge_index_t>::const_type bEdgeIdMap;
 
 	// A hash function for vertices
-	struct bVertexHash:std::unary_function<bVertexDescriptor, std::size_t> {
+	struct bVertexHash : std::unary_function<bVertexDescriptor, std::size_t> {
 		std::size_t operator()(bVertexDescriptor const& vd) const {
 			std::size_t seed = 0;
 			boost::hash_combine(seed, vd[0]);
@@ -60,10 +65,21 @@ namespace bookle {
 		// bool is_barrier;
 	};
 
+	// struct BookleEdge {
+	// 	BookleEdge() : x(0), y(0), z(0), weight(1) {}
+	// 	BookleVertex(int ix, int iy, int iz, int iw) : x(ix), y(iy), z(iz), weight(iw) {}
+
+	// 	int x;
+	// 	int y;
+	// 	int z;
+	// 	int weight;
+	// };
+
 	// TODO: check hash set
 	typedef boost::unordered_set<bVertexDescriptor, bVertexHash> bVertexSet;
 	typedef boost::vertex_subset_complement_filter<bGrid, bVertexSet>::type bFilteredGrid;
-	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVectorPropMap;
+	typedef boost::vector_property_map<BookleVertex, bVertexIdMap> bVertexVectorPropMap;
+	typedef boost::vector_property_map<double, bEdgeIdMap> bEdgeVectorPropMap;
 
 	class GridGraph {
 	public:
@@ -122,8 +138,10 @@ namespace bookle {
 
 	private:
 		bGrid grid;
-		bVertexIdMap index_map;
-		bVectorPropMap prop_map;
+		bVertexIdMap vindex_map;
+		bVertexVectorPropMap vprop_map;
+		bEdgeIdMap eindex_map;
+		bEdgeVectorPropMap eprop_map;
 
 		bVertexSet planned_traj;
 		// bFilteredGrid filtered_grid;

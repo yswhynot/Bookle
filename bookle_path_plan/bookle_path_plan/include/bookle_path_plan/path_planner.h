@@ -20,8 +20,6 @@
 namespace bookle {
 	const int MAX_INT = 8888;
 
-	enum Direction {BACK, RIGHT, FRONT, LEFT};
-
 	class PathPlan {
 	public:
 		PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh);
