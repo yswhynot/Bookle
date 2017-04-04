@@ -15,30 +15,31 @@ namespace bookle {
 
 		// init edge property map
 		// bookle_weight_map = boost::make_transform_value_property_map([](float w) { return w > 100 ? 10*w : w; }, boost::get(boost::edge_weight, grid));
-		for(long unsigned int i = 1; i < X_LENGTH; i++) {
-			for(long unsigned int j = 1; j < Y_LENGTH; j++) {
+		for(long unsigned int i = 0; i < X_LENGTH; i++) {
+			for(long unsigned int j = 0; j < Y_LENGTH; j++) {
 				for(long unsigned int k = 1; k < Z_LENGTH; k++) {
-					if(k == BACK || k == FRONT) {
-						// TODO: get edge descriptor with vertex descriptor
+					bVertexDescriptor vd({{i, j, k}});
 
-						std::pair<bEdgeDescriptor, bool> ed_right = boost::edge(bVertexDescriptor {{i - 1, j, k}}, bVertexDescriptor {{i, j, k}}, grid);
-						// std::pair<bEdgeDescriptor, bool> ed_left = boost::edge(bVertexDescriptor {{i, j, k}}, bVertexDescriptor {{i - 1, j, k}}, grid);
+					for (bTraits::degree_size_type ei = 0; ei < out_degree(vd, grid); ei++) {
+						bEdgeDescriptor ed = out_edge_at(vd, ei, grid);
 
-
-						// put(eprop_map, ed_right.first, MAX_WEIGHT);
-						// put(eprop_map, ed_left.first, MAX_WEIGHT);
-					}
-					else if (k == LEFT || k == RIGHT) {
-						// std::pair<bEdgeDescriptor, bool> ed_back = boost::edge(bVertexDescriptor {{i, j - 1, k}}, bVertexDescriptor {{i, j, k}}, grid);
-						// std::pair<bEdgeDescriptor, bool> ed_front = boost::edge(bVertexDescriptor {{i, j, k}}, bVertexDescriptor {{i, j - 1, k}}, grid);
-
-						// put(eprop_map, ed_back.first, MAX_WEIGHT);
-						// put(eprop_map, ed_front.first, MAX_WEIGHT);
-
-					}
-				}
-			}
-		}
+						if(k == BACK || k == FRONT) {
+							// disconnect all horizontal edges
+							// check if in the same x-asis
+							if((ed.second[1] == j) && (ed.second[2] == k))
+								put(eprop_map, ed, MAX_WEIGHT);
+						}
+						else if (k == LEFT || k == RIGHT) {
+							// disconnect all vertical edges
+							// check if in the same y-asis
+							if((ed.second[0] == i) && (ed.second[2] == k))
+								put(eprop_map, ed, MAX_WEIGHT);
+						}
+							
+					}	// end for ei
+				}	// end for k
+			}	// end for j
+		}	// end for i
 
 		ROS_INFO("Created graph of %lu * %lu * %lu\n", X_LENGTH, Y_LENGTH, Z_LENGTH);
 	}
