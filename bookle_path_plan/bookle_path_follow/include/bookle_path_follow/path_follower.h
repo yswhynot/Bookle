@@ -6,10 +6,15 @@
 #include <geometry_msgs/Point.h>
 
 #include <vector>
+#include <tuple>
+#include <algorithm>
 
 namespace bookle {
 	struct Point {
 		int x, y, theta;
+		bool operator==(const Point& p) {
+			return (std::tie(this->x, this->y, this->theta) == std::tie(p.x, p.y, p.theta));
+		}
 	};
 
 	class PathFollow {
@@ -20,18 +25,16 @@ namespace bookle {
 	private:
 		void PlannedPathCallback(const nav_msgs::Path::ConstPtr& input_path);
 		void CurrentPointCallback(const geometry_msgs::Point::ConstPtr& input_pose);
-		void getNextPoint(Point& result);
-		void Point2Pose(geometry_msgs::PoseStamped result);
+		int getNextPoint(Point& input, Point& result);
 
 	private:
 		ros::Subscriber path_sub_;
 		ros::Subscriber pose_sub_;
 
 		// TODO: confirm interface with hardware
-		ros::Publisher target_pose_pub_;
+		ros::Publisher target_point_pub_;
 		// ros::Publisher current_pose_pub_;
 
-		nav_msgs::Path nav_path;
 		std::vector<Point> v_path;
 		Point current_point;
 		Point prev_point;
