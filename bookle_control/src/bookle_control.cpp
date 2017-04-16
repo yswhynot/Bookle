@@ -6,7 +6,6 @@
 #include <geometry_msgs/PoseStamped.h>
 
 #include <gazebo/gazebo.hh>
-// #include <gazebo/ModelState.hh>
 #include <tf/transform_broadcaster.h>
 #include <iostream>
 
