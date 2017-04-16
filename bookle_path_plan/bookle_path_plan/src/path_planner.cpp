@@ -43,8 +43,8 @@ namespace bookle {
 			r, p, y);
 
 		start = (Point) {
-			getPoseInt(tmp_pose.pose.position.x * 100 / 2), 
-			getPoseInt( (tmp_pose.pose.position.y + 1) * 100 / 2), 
+			getPoseInt((1 - tmp_pose.pose.position.x) * 100 / 2), 
+			getPoseInt((tmp_pose.pose.position.y + 1) * 100 / 2), 
 			getYawEnum(y)};
 		gh.UpdateStart(start);
 
