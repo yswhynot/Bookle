@@ -49,13 +49,21 @@ namespace bookle {
 		Point next_p;
 		if(getNextPoint(current_point, next_p) == -1)
 			return;
+		prev_target = next_p;
 
 		geometry_msgs::Point p;
-		p.x = float(next_p.x);
-		p.y = float(next_p.y);
-		p.z = float(next_p.theta);
+		p.x = 1 - (float(next_p.x) / 100 * 2);
+		p.y = float(next_p.y) / 100 * 2 - 1;
+		p.z = getYawFloat(next_p.theta);
+		ROS_INFO("v_path.end: %d, %d, %d\n", v_path.back().x, v_path.back().y, v_path.back().theta);
+		ROS_INFO("Current:    %d, %d, %d\n", current_point.x, current_point.y, current_point.theta);
+		ROS_INFO("Next int:   %d, %d, %d\n", next_p.x, next_p.y, next_p.theta);
 		ROS_INFO("Next point: %.2f, %.2f, %.2f\n", p.x, p.y, p.z);
 		target_point_pub_.publish(p);
+	}
+
+	float PathFollow::getYawFloat(int yaw_i) {
+		return (float)yaw_i * 1.570796 - 3.141592;
 	}
 
 	int PathFollow::getNextPoint(Point& input, Point& result) {
@@ -73,10 +81,20 @@ namespace bookle {
 			result = *it;
 		} else if(it != v_path.end()) {
 			ROS_INFO("Point found!\n");
-			it --;
-			result = *it;
+			v_path.erase(it + 1, v_path.end());
+			result = *(it - 1);
+			// loop till find the turning point
+			while(it != v_path.begin()) {
+				std::vector<Point>::iterator prev_it = it;
+				it --;
+				if(it->theta == prev_it->theta) {
+					result = *it;
+				} 
+				else
+					break;
+			}
 		} else {
-			ROS_INFO("Point: %d, %d, %d not found!\n", input.x, input.y, input.theta);
+			ROS_INFO("Point not found!\n");
 			result = v_path.back();
 		}
 

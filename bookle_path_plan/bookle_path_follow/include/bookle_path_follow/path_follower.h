@@ -26,6 +26,7 @@ namespace bookle {
 		void PlannedPathCallback(const nav_msgs::Path::ConstPtr& input_path);
 		void CurrentPointCallback(const geometry_msgs::Point::ConstPtr& input_pose);
 		int getNextPoint(Point& input, Point& result);
+		float getYawFloat(int yaw_i);
 
 	private:
 		ros::Subscriber path_sub_;
@@ -37,7 +38,7 @@ namespace bookle {
 
 		std::vector<Point> v_path;
 		Point current_point;
-		Point prev_point;
+		Point prev_target;
 	};
 }
 

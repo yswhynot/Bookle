@@ -23,13 +23,13 @@ namespace bookle {
 					for (bTraits::degree_size_type ei = 0; ei < out_degree(vd, grid); ei++) {
 						bEdgeDescriptor ed = out_edge_at(vd, ei, grid);
 
-						if(k == BACK || k == FRONT) {
+						if (k == LEFT || k == RIGHT) {
 							// disconnect all horizontal edges
 							// check if in the same x-asis
 							if((ed.second[1] == j) && (ed.second[2] == k))
 								put(eprop_map, ed, MAX_WEIGHT);
 						}
-						else if (k == LEFT || k == RIGHT) {
+						else if(k == BACK || k == FRONT) {
 							// disconnect all vertical edges
 							// check if in the same y-asis
 							if((ed.second[0] == i) && (ed.second[2] == k))
