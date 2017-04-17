@@ -21,7 +21,7 @@
 #define ROATION_SPEED 0.02	// rad per 100ms
 
 struct BooklePoint {
-	BooklePoint() : x(0), y(0), yaw(PI / 2) {}
+	BooklePoint() : x(0), y(0), yaw(PI) {}
 	float x, y, yaw;
 } target_point, current_point, action_point;
 
