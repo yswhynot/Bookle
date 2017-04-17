@@ -17,7 +17,7 @@ namespace bookle {
 			for(long unsigned int y = 0; y < width; y++) {
 				if(map.data[height * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
-					// ROS_INFO("Insert barrier at %lu, %lu", x, y);
+					ROS_INFO("Insert barrier at %lu, %lu", x, y);
 					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
 						barrier_set.insert(bVertexDescriptor {{x, y, z}});
 					}
