@@ -7,7 +7,7 @@
 
 namespace bookle {
 
-	PathPlan::PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh) : goal((Point){0, 0, 0}), start((Point){0, 0, 0}) {
+	PathPlan::PathPlan(ros::NodeHandle& nh, ros::NodeHandle& pnh) : goal((Point){0, 0, 0}), start((Point){0, 0, 0}), gmap_init(false) {
 		// subscriptions
 		goal_sub_ = nh.subscribe("/bookle/goal_pos", 1, &PathPlan::GoalCallback, this);
 		map_sub_ = nh.subscribe("/map", 1, &PathPlan::MapCallback, this);
@@ -25,10 +25,13 @@ namespace bookle {
 
 	void PathPlan::MapCallback(const nav_msgs::OccupancyGrid::ConstPtr& input_map) {
 		gmap = *input_map;
+		gmap_init = true;
 
 		// Load map into the GridGraph
 		ROS_INFO("New map received!");
 		gh.UpdateGridGraph(gmap);
+
+		PublishPath();
 	}
 
 	void PathPlan::CurrentPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& input_pose) {
@@ -57,6 +60,17 @@ namespace bookle {
 		pose_int_pub_.publish(tmp_point);
 	}
 
+	void PathPlan::PublishPath() {
+		// Check if everything init
+		if((goal == Point{0, 0, 0}) || (start == Point{0, 0, 0}) || !gmap_init)
+			return;
+
+		// Load planned path
+		nav_msgs::Path result_path;
+		gh.LoadPlannedPath(result_path);
+		path_pub_.publish(result_path);
+	}
+
 	void PathPlan::GoalCallback(const geometry_msgs::PoseStamped::ConstPtr& input_goal) {
 		geometry_msgs::PoseStamped tmp_pose = *input_goal;
 
@@ -73,10 +87,7 @@ namespace bookle {
 		gh.UpdateGoal(goal);
 		ROS_INFO("Start at: %lu, %lu, %lu", start.x, start.y, start.theta);
 
-		// Load planned path
-		nav_msgs::Path result_path;
-		gh.LoadPlannedPath(result_path);
-		path_pub_.publish(result_path);
+		PublishPath();
 	}
 
 	long unsigned int PathPlan::getYawEnum(float yaw_f) {

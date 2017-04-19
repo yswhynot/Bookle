@@ -15,6 +15,9 @@ namespace bookle {
 
 	struct Point {
 		long unsigned int x, y, theta;
+		bool operator==(const Point& p) {
+			return (std::tie(this->x, this->y, this->theta) == std::tie(p.x, p.y, p.theta));
+		}
 	};
 
 	struct GraphHandler {

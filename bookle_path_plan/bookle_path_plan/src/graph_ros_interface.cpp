@@ -17,7 +17,7 @@ namespace bookle {
 			for(long unsigned int y = 0; y < width; y++) {
 				if(map.data[height * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
-					ROS_INFO("Insert barrier at %lu, %lu", x, y);
+					// ROS_INFO("Insert barrier at %lu, %lu", x, y);
 					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
 						barrier_set.insert(bVertexDescriptor {{x, y, z}});
 					}
@@ -26,7 +26,7 @@ namespace bookle {
 		} // end for x
 
 		if(grid_graph.UpdateBarrier(barrier_set)) {
-			ROS_INFO("Update success!");
+			ROS_INFO("Interface: Update success!");
 			return true;
 		}
 		
@@ -34,6 +34,7 @@ namespace bookle {
 	}
 
 	bool GraphHandler::LoadPlannedPath(nav_msgs::Path& result_path) {
+		grid_graph.AStarSearch();
 		std::vector<BookleVertex> tmp_path;
 		nav_msgs::Path tmp_nav_path;
 		grid_graph.getPlannedPath(tmp_path);
