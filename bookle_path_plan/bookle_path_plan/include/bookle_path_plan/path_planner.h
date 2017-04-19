@@ -37,6 +37,7 @@ namespace bookle {
 		long unsigned int getPoseInt(float input_float);
 		void getRPYFromQuaternion(float qx, float qy, float qz, float qw, float& r, float& p, float& y);
 		void getQuaternionFromRPY(float r, float p, float y, float& qx, float& qy, float& qz, float& qw);
+		void PublishPath();
 
 	private:
 		ros::Subscriber goal_sub_;
@@ -46,6 +47,7 @@ namespace bookle {
 		ros::Publisher pose_int_pub_;
 
 		nav_msgs::OccupancyGrid gmap;
+		bool gmap_init;
 
 		GraphHandler gh;
 		Point goal;
