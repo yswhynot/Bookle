@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+
+import bookle_sys_manager.manager
+
+
+if __name__ == '__main__':
+    bookle_sys_manager.manager.start()
+
