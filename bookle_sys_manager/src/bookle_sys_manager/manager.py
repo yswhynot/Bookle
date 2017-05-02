@@ -7,7 +7,7 @@ def init_io():
 	GPIO.setup(18, GPIO.OUT)
 
 def led_blink():
-	while:
+	while 1:
 		GPIO.output(18, GPIO.HIGH)
 		time.sleep(0.5)
 		GPIO.output(18, GPIO.LOW)
