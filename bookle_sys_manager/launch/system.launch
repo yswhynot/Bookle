@@ -1,0 +1,8 @@
+<launch>
+	<node name="manager" pkg="bookle_sys_manager" type="manager" output="screen" respawn="true" args="" />
+	<node name="bookle_tf_pub_node" pkg="bookle_tf_pub" type="bookle_tf_pub_node" output="screen" respawn="true" args="" />
+	<node name="zbar_bridge_node" pkg="zbar_bridge" type="zbar_bridge_node" type="zbar_bridge_node" output="screen" respawn="true" args="" />
+	<node name="bookle_path_plan_node" pkg="bookle_path_plan" type="bookle_path_plan_node" output="screen" respawn="true" args="" />
+	<node name="bookle_path_follow_node" pkg="bookle_path_follow" type="bookle_path_follow_node" output="screen" respawn="true" args="" />
+	<node name="raspicam_raw_node" pkg="raspicam" type="raspicam_raw_node" output="screen" respawn="true" args="" />
+</launch>
