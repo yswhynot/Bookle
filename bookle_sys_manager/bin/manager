@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 
+import rospy
 import bookle_sys_manager.manager
 
 
 if __name__ == '__main__':
-    bookle_sys_manager.manager.start()
+	try:
+		bookle_sys_manager.manager.start()
+	except rospy.ROSInterruptException:
+        pass
 

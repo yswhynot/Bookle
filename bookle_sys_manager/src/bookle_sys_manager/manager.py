@@ -1,7 +1,9 @@
+import rospy
+from std_msgs.msg import String
 import RPi.GPIO as GPIO
 import time
 
-state = 'none'
+state = 'wait'
 
 def init_io():
 	GPIO.setmode(GPIO.BCM)
@@ -9,8 +11,17 @@ def init_io():
 	GPIO.setup(18, GPIO.OUT)
 	GPIO.setup(23, GPIO.OUT)
 	GPIO.setup(24, GPIO.OUT)
+
+def init_ros():
+	rospy.init_node('sys_manager', anonymous=True)
+
+	cam_serv_name = '/camera/start_capture'
+	rospy.wait_for_service(cam_serv_name)
+	cam_serv = rospy.ServiceProxy(cam_serv_name)
+	res = cam_serv()
+	
 	global state
-	state = 'goal'
+	state = 'wait'
 
 def led_on_red():
 	GPIO.output(23, GPIO.LOW)
@@ -61,22 +72,17 @@ def led_flash():
 	GPIO.output(18, GPIO.HIGH)
 	GPIO.output(23, GPIO.LOW)
 	GPIO.output(24, GPIO.LOW)
-	time.sleep(0.1, GPIO.HIGH)
+	time.sleep(0.15)
 
 	GPIO.output(18, GPIO.LOW)
 	GPIO.output(23, GPIO.HIGH)
 	GPIO.output(24, GPIO.LOW)
-	time.sleep(0.1)
+	time.sleep(0.15)
 
 	GPIO.output(18, GPIO.LOW)
 	GPIO.output(23, GPIO.LOW)
 	GPIO.output(24, GPIO.HIGH)
-	time.sleep(0.1)
-
-	GPIO.output(18, GPIO.HIGH)
-	GPIO.output(23, GPIO.HIGH)
-	GPIO.output(24, GPIO.HIGH)
-	time.sleep(0.2)
+	time.sleep(0.15)
 
 def led_off():
 	GPIO.output(18, GPIO.LOW)
@@ -96,6 +102,9 @@ actions = {
 def start():
 	print('System manager started :)\n')
 	init_io()
+	init_ros()
+	rate = rospy.Rate(10)
 
-	while 1:
+	while not rospy.is_shutdown():
 		actions[state]()
+		rate.sleep()
