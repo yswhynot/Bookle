@@ -9,6 +9,7 @@ def init_io():
 	GPIO.setup(18, GPIO.OUT)
 	GPIO.setup(23, GPIO.OUT)
 	GPIO.setup(24, GPIO.OUT)
+	global state
 	state = 'goal'
 
 def led_on_red():
