@@ -29,6 +29,7 @@ def get_goal(code):
 	return goal
 
 def barcode_cb(input):
+	print('Barcode received!\n')
 	goal_pub = rospy.Publisher('/bookle/goal_pos', PoseStamped)
 	code = input.data
 	goal = get_goal(code)
@@ -41,6 +42,7 @@ def barcode_cb(input):
 		print('Barcode not in record\n')
 
 def path_cb(input):
+	print('Path received!\n')
 	global state
 	state = 'running'
 
