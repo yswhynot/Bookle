@@ -1,7 +1,9 @@
 import rospy
+from bookle_sys_manager.srv import * 
+from std_srvs.srv import Empty
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped
-from nav_msgs import Path
+from nav_msgs.msg import Path
 import RPi.GPIO as GPIO
 import time
 
@@ -30,10 +32,10 @@ def get_goal(code):
 
 def barcode_cb(input):
 	print('Barcode received!\n')
-	goal_pub = rospy.Publisher('/bookle/goal_pos', PoseStamped)
+	goal_pub = rospy.Publisher('/bookle/goal_pos', PoseStamped, queue_size=1)
 	code = input.data
 	goal = get_goal(code)
-	if goal not none:
+	if goal is not None:
 		goal_pub.publish(goal)
 
 		global state
@@ -60,7 +62,7 @@ def init_ros():
 	rospy.Subscriber('/bookle/planned_path', Path, path_cb)
 	cam_serv_name = '/camera/start_capture'
 	rospy.wait_for_service(cam_serv_name)
-	cam_serv = rospy.ServiceProxy(cam_serv_name)
+	cam_serv = rospy.ServiceProxy(cam_serv_name, Empty)
 	res = cam_serv()
 	
 	global state
