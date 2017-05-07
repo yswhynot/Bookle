@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+import rospy
+import hardware_bridge.bridge 
+
+
+if __name__ == '__main__':
+    try:
+        hardware_bridge.bridge.start()
+    except rospy.ROSInterruptException:
+        pass
+
+
