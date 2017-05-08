@@ -1,8 +1,17 @@
 <launch>
 	<node name="manager" pkg="bookle_sys_manager" type="manager" output="screen" args="" />
-	<!-- <node name="bookle_tf_pub_node" pkg="bookle_tf_pub" type="bookle_tf_pub_node" output="screen" args="" /> -->
+	<node name="bookle_tf_pub_node" pkg="bookle_tf_pub" type="bookle_tf_pub_node" output="screen" args="" />
 	<node name="zbar_bridge_node" pkg="zbar_bridge" type="zbar_bridge_node" output="screen" args="" />
 	<node name="path_planner_node" pkg="bookle_path_plan" type="path_planner_node" output="screen" args="" />
 	<node name="path_follower_node" pkg="bookle_path_follow" type="path_follower_node" output="screen" args="" />
 	<node name="raspicam_raw_node" pkg="raspicam" type="raspicam_raw_node" output="screen" args="" />
+	<node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+		<remap from="/scan" to="/bookle/laser/scan"/>
+		<param name="serial_port" type="string" value="/dev/ttyUSB0" />
+		<param name="serial_baudrate" type="int" value="115200" />
+		<param name="frame_id" type="string" value="laser" />
+		<param name="inverted" type="bool" value="false" />
+		<param name="angle_compensate" type="bool" value="true" />
+	</node>
+	<node name="hardware_bridge_node" pkg="hardware_bridge" type="hardware_bridge_node" output="screen" />
 </launch>
