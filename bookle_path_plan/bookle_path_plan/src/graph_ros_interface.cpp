@@ -11,13 +11,12 @@ namespace bookle {
 
 		bVertexSet barrier_set;
 
-		// ROS_INFO("In UpdateGridGraph");
-
-		for(long unsigned int x = 0; x < height; x++) {
-			for(long unsigned int y = 0; y < width; y++) {
-				if(map.data[height * x + y] > BARRIER_THRESHOLD) {
+		ROS_INFO("\nUpdate barrier of width: %d, height: %d \n", width, height);
+		for(long unsigned int x = 0; x < width; x++) {
+			for(long unsigned int y = 0; y < height; y++) {
+				if(map.data[width * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
-					// ROS_INFO("Insert barrier at %lu, %lu", x, y);
+					printf("(%lu, %lu)\n", x, y);
 					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
 						barrier_set.insert(bVertexDescriptor {{x, y, z}});
 					}
@@ -26,7 +25,7 @@ namespace bookle {
 		} // end for x
 
 		if(grid_graph.UpdateBarrier(barrier_set)) {
-			ROS_INFO("Interface: Update success!");
+			ROS_INFO("\n\n-----------------------------\nBarrier map:\n");
 			return true;
 		}
 		
@@ -48,7 +47,7 @@ namespace bookle {
 				g.pose.position.y = (float)it->y;
 				g.pose.position.z = (float)it->z;
 				tmp_nav_path.poses.push_back(g);
-				printf("(%.1f %.1f %.1f) ", g.pose.position.x, g.pose.position.y, g.pose.position.z);
+				printf("(%.1f %.1f %.1f)\n", g.pose.position.x, g.pose.position.y, g.pose.position.z);
 			}
 			printf("\n\n-------------------------------\n\n");
 

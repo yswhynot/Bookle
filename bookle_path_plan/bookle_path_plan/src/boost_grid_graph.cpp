@@ -96,12 +96,26 @@ namespace bookle {
 		des_path = planned_traj_vec;
 	}
 
+	void GridGraph::PrintBarrierMap() {
+		printf("Barrier Map:\n");
+		for(long unsigned int x = 0; x < 100; x++) {
+			for(long unsigned int y = 0; y < 100; y++) {
+				if(hasBarrier(bVertexDescriptor {{x, y, 0}})) printf("x");
+				else printf("-");
+			}
+			printf("\n");
+		}
+		printf("\n---------------\n");
+	}
+
 	bool GridGraph::UpdateBarrier(bVertexSet& input_barrier) {
-			// Clear and load barrier set
+		// Clear and load barrier set
 		barrier_set.clear();
 		barrier_set = input_barrier;
 
-		ROS_INFO("Update barrier success");
+		ROS_INFO("Update barrier success\n");
+
+		PrintBarrierMap();
 
 		// Update filtered set
 		// TODO: Check assignment operator
