@@ -88,6 +88,7 @@ namespace bookle {
 		bool AStarSearch();
 		void getPlannedPath(std::vector<BookleVertex>& des_path);
 		bool UpdateBarrier(bVertexSet& input_graph);
+		void PrintBarrierMap();
 		void UpdateGoal(long unsigned int x, long unsigned int y, long unsigned int z);
 		void UpdateStart(long unsigned int x, long unsigned int y, long unsigned int z);
 
