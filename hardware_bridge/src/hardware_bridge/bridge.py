@@ -8,13 +8,15 @@ import numpy as np
 def init():
 	rospy.init_node('hardware_bridge', anonymous=True)
 
-	br = tf.TransformBroadcaster()
-	br.sendTransform(
+	for i in range(0, 10):
+		br = tf.TransformBroadcaster()
+		br.sendTransform(
 		(0.75, -0.75, 0),
 		tf.transformations.quaternion_from_euler(0, 0, 0),
 		rospy.Time.now(),
 		'base_footprint',
 		'odom')
+	print('after broadcast')
 
 def get_left_distance():
 # TODO: return distance in meter in 100ms
@@ -28,7 +30,7 @@ def update_transform(listener, tl, tr):
 		(trans, rot) = listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
 	except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 		rospy.logwarn('TF lookup fail\n')
-		break
+		return (rospy.Time.now(), rospy.Time.now())
 
 	x_trans = trans[0]
 	y_trans = trans[1]
