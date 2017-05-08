@@ -5,18 +5,17 @@ import time
 import math
 import numpy as np
 
-def init():
-	rospy.init_node('hardware_bridge', anonymous=True)
-
-	for i in range(0, 10):
-		br = tf.TransformBroadcaster()
-		br.sendTransform(
+def tf_init():
+	br = tf.TransformBroadcaster()
+	br.sendTransform(
 		(0.75, -0.75, 0),
 		tf.transformations.quaternion_from_euler(0, 0, 0),
 		rospy.Time.now(),
 		'base_footprint',
 		'odom')
-	print('after broadcast')
+
+def init():
+	rospy.init_node('hardware_bridge', anonymous=True)
 
 def get_left_distance():
 # TODO: return distance in meter in 100ms
@@ -30,20 +29,21 @@ def update_transform(listener, tl, tr):
 		(trans, rot) = listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
 	except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 		rospy.logwarn('TF lookup fail\n')
+		tf_init()
 		return (rospy.Time.now(), rospy.Time.now())
 
 	x_trans = trans[0]
 	y_trans = trans[1]
 	euler = tf.transformations.euler_from_quaternion(rot)
-	yaw = eular[2]
+	yaw = euler[2]
 
 	# Calculate differetial drive params
 	l = 0.43
 	w = 0
 	path_r = 0
 	icc = (0, 0)
-	(dl, tmp_tl) = get_left_distance
-	(dr, tmp_tr) = get_right_distance
+	(dl, tmp_tl) = get_left_distance()
+	(dr, tmp_tr) = get_right_distance()
 	vl = dl / (tmp_tl - tl).to_sec()
 	vr = dr / (tmp_tr - tr).to_sec()
 	w = (vr - vl) / l
@@ -54,32 +54,31 @@ def update_transform(listener, tl, tr):
 
 	# Straight line motion
 	if path_r == -1:
-		trans[0] += (dl + dr) / 2 * math.cos(yaw)
-		trans[1] += (dl + dr) / 2 * math.sin(yaw)
+		trans = (trans[0] + (dl + dr) / 2 * math.cos(yaw), 
+			trans[1] + (dl + dr) / 2 * math.sin(yaw), 
+			0)
 	else:
-		icc[0] = x_trans - (path_r * math.sin(yaw))
-		icc[1] = y_trans + (path_r * math.cos(yaw))
+		icc = (x_trans - (path_r * math.sin(yaw)), y_trans + (path_r * math.cos(yaw)))
 
 		time_dif = ((tmp_tl - tl).to_sec() + (tmp_tr - tr).to_sec()) / 2
 		angle_dif = w * time_dif
 		dif_vec = np.array([icc[0], icc[1], angle_dif])
-		origin_vec = np.array([x_trans - icc[0], y - icc[1], yaw])
-		rot_mat = np.matrix(
+		origin_vec = np.array([x_trans - icc[0], y_trans - icc[1], yaw])
+		rot_mat = np.matrix([
 			[math.cos(angle_dif), -math.sin(angle_dif), 0],
 			[math.sin(angle_dif), math.cos(angle_dif), 0],
-			[0, 0, 1])
+			[0, 0, 1]])
 		result = np.add(np.dot(rot_mat, origin_vec), dif_vec).tolist()
 
-		trans[0] = result[0]
-		trans[1] = result[1]
-		rot = tf.transformations.quaternion_from_euler(0, 0, result[2])
+		trans = (result[0][0], result[0][1], 0)
+		rot = tf.transformations.quaternion_from_euler(0, 0, result[0][2])
 
 	br = tf.TransformBroadcaster()
 	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
 
 	rospy.loginfo('Transform updated!\n')
 
-	return (tmp_tl, tmp_tr)
+	return [tmp_tl, tmp_tr]
 
 
 def start():
@@ -91,7 +90,10 @@ def start():
 
 	tl = rospy.Time.now()
 	tr = rospy.Time.now()
+	time_array = [tl, tr]
 
 	while not rospy.is_shutdown():
-		(tl, tr) = update_transform(listener, tl, tr)
+		time_array = update_transform(listener, tl, tr)
+		tl = time_array[0]
+		tr = time_array[1]
 		rate.sleep()
