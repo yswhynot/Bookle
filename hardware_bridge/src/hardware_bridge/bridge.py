@@ -76,8 +76,6 @@ def update_transform(listener, tl, tr):
 	br = tf.TransformBroadcaster()
 	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
 
-	rospy.loginfo('Transform updated!\n')
-
 	return [tmp_tl, tmp_tr]
 
 
