@@ -17,14 +17,43 @@ def tf_init():
 def init():
 	rospy.init_node('hardware_bridge', anonymous=True)
 
-def get_left_distance():
-# TODO: return distance in meter in 100ms
-	return (0.01, rospy.Time.now())
+def init_serial(ser_left, ser_right):
+	ser_left.write(b'\x01\x06\x00\x00\x00\x01\x48\x0A')
+	ser_right.write(b'\x02\x06\x00\x00\x00\x01\x48\x39')
+	rospy.loginfo('Motor set up done\n')
 
-def get_right_distance():
-	return (0.01, rospy.Time.now())
+def action_left(ser_left):
+	ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
 
-def update_transform(listener, tl, tr):
+def action_right(ser_right):
+	ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
+
+def parse_pu(line):
+	pu_addr = " ".join(hex(ord(n))[2:] for n in line[:1])
+	pu_hex = [" ".join(hex(ord(n))[2:] for n in line[-2:-1]),
+		" ".join(hex(ord(n))[2:] for n in line[-1:]),
+		" ".join(hex(ord(n))[2:] for n in line[-4:-3]),
+		" ".join(hex(ord(n))[2:] for n in line[-3:-2])]
+	pu_hex_fill = pu_hex[0].zfill(2) + pu_hex[1].zfill(2) + pu_hex[2].zfill(2) + pu_hex[3].zfill(2)
+	pu_dec = int(pu_hex_fill, 16)
+	pu_meter = float(pu_dec / 366936)
+	return pu_meter
+
+def get_left_distance(ser_left):
+	ser_left.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
+	line = ser_left.read(51)
+
+	return (parse_pu(line), rospy.Time.now())
+	# return (0.01, rospy.Time.now())
+
+def get_right_distance(ser_right):
+	ser_right.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
+	line = ser_right.read(51)
+
+	return (parse_pu(line), rospy.Time.now())
+	# return (0.01, rospy.Time.now())
+
+def update_transform(listener, tl, tr, ser_left, ser_right):
 	try:
 		(trans, rot) = listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
 	except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
@@ -42,8 +71,8 @@ def update_transform(listener, tl, tr):
 	w = 0
 	path_r = 0
 	icc = (0, 0)
-	(dl, tmp_tl) = get_left_distance()
-	(dr, tmp_tr) = get_right_distance()
+	(dl, tmp_tl) = get_left_distance(ser_left)
+	(dr, tmp_tr) = get_right_distance(ser_right)
 	vl = dl / (tmp_tl - tl).to_sec()
 	vr = dr / (tmp_tr - tr).to_sec()
 	w = (vr - vl) / l
@@ -78,10 +107,20 @@ def update_transform(listener, tl, tr):
 
 	return [tmp_tl, tmp_tr]
 
+def clear_serial(ser_left, ser_right):
+	ser_left.flushInput()
+	ser_left.flushOutput()
+	ser_right.flushInput()
+	ser_right.flushOutput()
 
 def start():
 	rospy.loginfo('Hardware bridge started :)\n')
 	init()
+
+	ser_left = serial.Serial('/tty/USB1', 19200)
+	ser_right = serial.Serial('/tty/USB2', 19200)
+	rospy.loginfo('Serial connected\n')
+	init_serial()
 
 	rate = rospy.Rate(10)
 	listener = tf.TransformListener()
@@ -94,4 +133,6 @@ def start():
 		time_array = update_transform(listener, tl, tr)
 		tl = time_array[0]
 		tr = time_array[1]
+
+		clear_serial(ser_left, ser_right)		
 		rate.sleep()
