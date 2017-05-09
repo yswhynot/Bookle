@@ -24,4 +24,6 @@
 		<param name="maxRange" value="6.0" />
 		<param name="map_update_interval" value="2" />
 	</node>
+	<node name="footprint_link_broadcast" pkg="tf" type="static_transform_publisher" output="screen" args="0 0 0 0 0 0 1 base_footprint base_link 200" />
+	<node name="link_laser_broadcast" pkg="tf" type="static_transform_publisher" output="screen" args="0.1 0 0.135 0 0 0 1 base_link base_laser 200" />
 </launch>
