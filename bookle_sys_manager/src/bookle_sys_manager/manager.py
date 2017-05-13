@@ -9,6 +9,18 @@ import time
 
 state = 'wait'
 
+def cam_on():
+	cam_serv_name = '/camera/start_capture'
+	rospy.wait_for_service(cam_serv_name)
+	cam_serv = rospy.ServiceProxy(cam_serv_name, Empty)
+	res = cam_serv()
+
+def cam_off():
+	cam_serv_name = '/camera/stop_capture'
+	rospy.wait_for_service(cam_serv_name)
+	cam_serv = rospy.ServiceProxy(cam_serv_name, Empty)
+	res = cam_serv()
+
 def get_goal(code):
 	code_map = {
 		# [x, y, z, x, y, z, w]
@@ -31,22 +43,41 @@ def get_goal(code):
 	return goal
 
 def barcode_cb(input):
-	print('Barcode received!\n')
+	rospy.loginfo('Barcode received!\n')
 	goal_pub = rospy.Publisher('/bookle/goal_pos', PoseStamped, queue_size=1)
 	code = input.data
 	goal = get_goal(code)
 	if goal is not None:
 		goal_pub.publish(goal)
+		cam_off()
 
 		global state
 		state = 'planning'
 	else:
-		print('Barcode not in record\n')
+		rospy.loginfo('Barcode not in record\n')
 
 def path_cb(input):
-	print('Path received!\n')
+	rospy.loginfo('Path received!\n')
 	global state
 	state = 'running'
+
+def init_goal():
+	goal = PoseStamped()	
+	goal.header.stamp = rospy.Time.now()
+	goal.pose.position.x = 10
+	goal.pose.position.y = 10
+	goal.pose.position.z = 0
+	goal.pose.orientation.x = 0
+	goal.pose.orientation.y = 0
+	goal.pose.orientation.z = 0
+	goal.pose.orientation.w = 1
+
+	goal_pub = rospy.Publisher('/bookle/goal_pos', PoseStamped, queue_size=1)
+	goal_pub.publish(goal)
+
+def check_button():
+	if GPIO.input(25):
+		init_goal()
 
 def init_io():
 	GPIO.setmode(GPIO.BCM)
@@ -54,17 +85,15 @@ def init_io():
 	GPIO.setup(18, GPIO.OUT)
 	GPIO.setup(23, GPIO.OUT)
 	GPIO.setup(24, GPIO.OUT)
+	GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 def init_ros():
-	rospy.init_node('sys_manager', anonymous=True)
+	rospy.init_node('sys_manager', anonymous = True)
 
 	rospy.Subscriber('/bookle/barcode', String, barcode_cb)
 	rospy.Subscriber('/bookle/planned_path', Path, path_cb)
-	cam_serv_name = '/camera/start_capture'
-	rospy.wait_for_service(cam_serv_name)
-	cam_serv = rospy.ServiceProxy(cam_serv_name, Empty)
-	res = cam_serv()
-	
+	cam_on()
+
 	global state
 	state = 'wait'
 
@@ -145,7 +174,7 @@ actions = {
 }
 
 def start():
-	print('System manager started :)\n')
+	rospy.loginfo('System manager started :)\n')
 	init_io()
 	init_ros()
 	rate = rospy.Rate(10)
