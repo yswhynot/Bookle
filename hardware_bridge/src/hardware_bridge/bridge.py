@@ -40,21 +40,21 @@ def parse_pu(line):
 	pu_meter = float(pu_dec / 366936)
 	return pu_meter
 
-def get_left_distance(ser_left):
+def get_left_distance(ser_left, prev_pu):
 	ser_left.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
 	line = ser_left.read(51)
 
-	return (parse_pu(line), rospy.Time.now())
+	return (prev_pu - parse_pu(line), rospy.Time.now())
 	# return (0.01, rospy.Time.now())
 
-def get_right_distance(ser_right):
+def get_right_distance(ser_right, prev_pu):
 	ser_right.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
 	line = ser_right.read(51)
 
-	return (parse_pu(line), rospy.Time.now())
+	return (prev_pu - parse_pu(line), rospy.Time.now())
 	# return (0.01, rospy.Time.now())
 
-def update_transform(listener, tl, tr, ser_left, ser_right):
+def update_transform(listener, prev_time, prev_dis, ser_left, ser_right):
 	try:
 		(trans, rot) = listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
 	except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
@@ -72,10 +72,10 @@ def update_transform(listener, tl, tr, ser_left, ser_right):
 	w = 0
 	path_r = 0
 	icc = (0, 0)
-	(dl, tmp_tl) = get_left_distance(ser_left)
-	(dr, tmp_tr) = get_right_distance(ser_right)
-	vl = dl / (tmp_tl - tl).to_sec()
-	vr = dr / (tmp_tr - tr).to_sec()
+	(dl, tmp_tl) = get_left_distance(ser_left, prev_dis[0])
+	(dr, tmp_tr) = get_right_distance(ser_right, prev_dis[1])
+	vl = dl / (tmp_tl - prev_time[0]).to_sec()
+	vr = dr / (tmp_tr - prev_time[1]).to_sec()
 	w = (vr - vl) / l
 	if vl != vr:
 		path_r = l * (vl + vr) / (2 * (vr - vl))
@@ -90,7 +90,7 @@ def update_transform(listener, tl, tr, ser_left, ser_right):
 	else:
 		icc = (x_trans - (path_r * math.sin(yaw)), y_trans + (path_r * math.cos(yaw)))
 
-		time_dif = ((tmp_tl - tl).to_sec() + (tmp_tr - tr).to_sec()) / 2
+		time_dif = ((tmp_tl - prev_time[0]).to_sec() + (tmp_tr - prev_time[1]).to_sec()) / 2
 		angle_dif = w * time_dif
 		dif_vec = np.array([icc[0], icc[1], angle_dif])
 		origin_vec = np.array([x_trans - icc[0], y_trans - icc[1], yaw])
@@ -109,7 +109,7 @@ def update_transform(listener, tl, tr, ser_left, ser_right):
 	br = tf.TransformBroadcaster()
 	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
 
-	return [tmp_tl, tmp_tr]
+	return [[tmp_tl, tmp_tr], [dl + prev_dis[0], dr + prev_dis[1]]]
 
 def clear_serial(ser_left, ser_right):
 	ser_left.flushInput()
@@ -128,14 +128,11 @@ def start():
 	rate = rospy.Rate(10)
 	listener = tf.TransformListener()
 
-	tl = rospy.Time.now()
-	tr = rospy.Time.now()
-	time_array = [tl, tr]
+	time_array = [rospy.Time.now(), rospy.Time.now()]
+	dis_array = [0, 0]
 
 	while not rospy.is_shutdown():
-		time_array = update_transform(listener, tl, tr, ser_left, ser_right)
-		tl = time_array[0]
-		tr = time_array[1]
+		[time_array, dis_array] = update_transform(listener, time_array, dis_array ser_left, ser_right)
 
 		clear_serial(ser_left, ser_right)		
 		rate.sleep()
