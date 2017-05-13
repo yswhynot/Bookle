@@ -105,8 +105,6 @@ def update_transform(listener, tl, tr, ser_left, ser_right):
 	br = tf.TransformBroadcaster()
 	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
 
-	rospy.loginfo('Transform updated!\n')
-
 	return [tmp_tl, tmp_tr]
 
 def clear_serial(ser_left, ser_right):
