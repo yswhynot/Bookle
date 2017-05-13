@@ -1,6 +1,7 @@
 import rospy
 import tf
 
+import serial
 import time
 import math
 import numpy as np
@@ -26,7 +27,7 @@ def action_left(ser_left):
 	ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
 
 def action_right(ser_right):
-	ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
+	ser_right.write(b'\x02\x78\xFF\xF9\xE5\x80\x0A\xE6')
 
 def parse_pu(line):
 	pu_addr = " ".join(hex(ord(n))[2:] for n in line[:1])
@@ -101,6 +102,9 @@ def update_transform(listener, tl, tr, ser_left, ser_right):
 
 		trans = (result[0][0], result[0][1], 0)
 		rot = tf.transformations.quaternion_from_euler(0, 0, result[0][2])
+	
+	action_left(ser_left)
+	action_right(ser_right)
 
 	br = tf.TransformBroadcaster()
 	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
@@ -117,10 +121,10 @@ def start():
 	rospy.loginfo('Hardware bridge started :)\n')
 	init()
 
-	ser_left = serial.Serial('/tty/USB1', 19200)
-	ser_right = serial.Serial('/tty/USB2', 19200)
+	ser_left = serial.Serial('/dev/ttyUSB2', 19200)
+	ser_right = serial.Serial('/dev/ttyUSB1', 19200)
 	rospy.loginfo('Serial connected\n')
-	init_serial()
+	init_serial(ser_left, ser_right)
 
 	rate = rospy.Rate(10)
 	listener = tf.TransformListener()
@@ -130,7 +134,7 @@ def start():
 	time_array = [tl, tr]
 
 	while not rospy.is_shutdown():
-		time_array = update_transform(listener, tl, tr)
+		time_array = update_transform(listener, tl, tr, ser_left, ser_right)
 		tl = time_array[0]
 		tr = time_array[1]
 
