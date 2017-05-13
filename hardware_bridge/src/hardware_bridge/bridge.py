@@ -120,7 +120,6 @@ def clear_serial(ser_left, ser_right):
 def start():
 	rospy.loginfo('Hardware bridge started :)\n')
 	init()
-
 	ser_left = serial.Serial('/dev/ttyUSB2', 19200)
 	ser_right = serial.Serial('/dev/ttyUSB1', 19200)
 	rospy.loginfo('Serial connected\n')
