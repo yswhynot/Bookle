@@ -14,10 +14,9 @@ namespace bookle {
 
 	void BarcodeReader::ImageCallback(const sensor_msgs::ImageConstPtr &input) {
 		cv_bridge::CvImageConstPtr cv_image;
-		cv_image = cv_bridge::toCvShare(input, "mono16");
+		cv_image = cv_bridge::toCvShare(input, "mono8");
 
-
-		zbar::Image zbar_image(cv_image->image.cols, cv_image->image.rows, "Y800", cv_image->image.data,
+		zbar::Image zbar_image(cv_image->image.cols, cv_image->image.rows, "GREY", cv_image->image.data,
 			cv_image->image.cols * cv_image->image.rows);
 		scanner.scan(zbar_image);
 
