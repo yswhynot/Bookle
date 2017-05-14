@@ -40,33 +40,60 @@ class BookleBridge:
 			'base_footprint',
 			'odom')
 
-	def TURN(self, theta_current, theta_next):
+	def TURN_LEFT(self, theta_current, theta_next):
+
 		theta_threshold = 0.0698
-		
 		theta_change = 81000*(theta_next - theta_current)
+
 		theta_pu = int(theta_change)
 		
-		theta_pu_1 = "01" + "78" + (hex(theta_pu)[2:]).zfill(8)
+		theta_pu_1 = "01" + "78" + (hex(-theta_pu)[2:]).zfill(8)
 		theta_pu_1_crc = crc(theta_pu_1) 
 		theta_pu_1_crc_hex = hex(theta_pu_1_crc)[2:]
 		theta_pu_1_string = theta_pu_1 + theta_pu_1_crc_hex
 		theta_pu_1_send = theta_pu_1_string.decode('hex')
 
-		theta_pu_2 = "02" + "78" + (hex(theta_pu)[2:]).zfill(8)
+		theta_pu_2 = "02" + "78" + (hex(-theta_pu)[2:]).zfill(8)
 		theta_pu_2_crc = crc(theta_pu_2)
 		theta_pu_2_crc_hex = hex(theta_pu_2_crc)[2:]
 		theta_pu_2_string = theta_pu_2 + theta_pu_2_crc_hex
 		theta_pu_2_send = theta_pu_2_string.decode('hex')	
 
-		self.ser_left.write(theta_pu_2_send)
 		self.ser_right.write(theta_pu_1_send)
-		print "Finish Turn"
+		self.ser_left.write(theta_pu_2_send)
+		print "Finish Left Turn"
+
+	def TURN_RIGHT(self, theta_current, theta_next):
+
+		theta_threshold = 0.0698
+		theta_change = 81000*(theta_next - theta_current)
+
+		theta_pu = int(theta_change)
+
+		theta_pu_1 = "01" + "78" + hex(-theta_pu & (2**32-1))[2:10]
+		theta_pu_1_crc = crc(theta_pu_1) 
+		theta_pu_1_crc_hex = hex(theta_pu_1_crc)[2:]
+		theta_pu_1_string = theta_pu_1 + theta_pu_1_crc_hex
+		theta_pu_1_send = theta_pu_1_string.decode('hex')
+
+		theta_pu_2 = "02" + "78" + hex(-theta_pu & (2**32-1))[2:10]
+		theta_pu_2_crc = crc(theta_pu_2)
+		theta_pu_2_crc_hex = hex(theta_pu_2_crc)[2:]
+		theta_pu_2_string = theta_pu_2 + theta_pu_2_crc_hex
+		theta_pu_2_send = theta_pu_2_string.decode('hex')	
+
+		self.ser_right.write(theta_pu_1_send)
+		self.ser_left.write(theta_pu_2_send)
 
 	# go straight forward for x_change meter
 	def STRAIGHT(self, xy_current, xy_next):
 		xy_threshold = 0.1 
 		
-		xy_change = 366936*(xy_next - xy_current)
+		if(xy_next - xy_current >0):
+			xy_change = 366936*(xy_next - xy_current)
+		elif(xy_next - xy_current <0):
+			xy_change = 366936*(xy_current - xy_next)
+
 		xy_pu = int(xy_change)
 
 		xy_pu_1 = "01" + "78" + (hex(xy_pu)[2:]).zfill(8)
@@ -198,7 +225,10 @@ class BookleBridge:
 		
 		# if theta change
 		if(abs(theta_norm(theta_next - theta_current)) > theta_threshold):
-			self.TURN(theta_current,theta_next)
+			if(theta_norm(theta_current - theta_next) > theta_threshold):
+				TURN_LEFT(theta_current,theta_next)
+			elif(theta_norm(theta_next - theta_current) > theta_threshold):
+				TURN_RIGHT(theta_current,theta_next)
 		else:
 			# if x change
 			if(abs(x_next - x_current) > xy_threshold):
