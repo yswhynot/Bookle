@@ -1,6 +1,6 @@
 import rospy
 import tf
-from geometry_msgs import Point
+from geometry_msgs.msg import Point
 
 import serial
 import time
@@ -108,9 +108,6 @@ class BookleBridge:
 		self.ser_right.write(xy_pu_1_send)
 		print "Finish backward"
 
-	def action_state(self):
-		pass
-
 	def pu2meter(self, line):
 		pu_addr = " ".join(hex(ord(n))[2:] for n in line[:1])
 		if ((pu_addr is not "1") or (pu_addr is not "2")):
@@ -148,7 +145,7 @@ class BookleBridge:
 	def get_left_distance(self, prev_pu):
 		self.ser_right.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
 		line = self.ser_right.read(51)
-		curr_pu = pu2meter(line)
+		curr_pu = self.pu2meter(line)
 
 		if curr_pu is None:
 			return (0, rospy.Time.now())
@@ -159,7 +156,7 @@ class BookleBridge:
 	def get_right_distance(self, prev_pu):
 		self.ser_left.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
 		line = self.ser_left.read(51)
-		curr_pu = pu2meter(line)
+		curr_pu = self.pu2meter(line)
 
 		if curr_pu is None:
 			return (0, rospy.Time.now())
@@ -167,7 +164,7 @@ class BookleBridge:
 		return (prev_pu - curr_pu, rospy.Time.now())
 		# return (0.01, rospy.Time.now())
 
-	def action_state():
+	def action_state(self):
 		if self.motor_run:
 			return
 
@@ -207,8 +204,8 @@ class BookleBridge:
 			(trans, rot) = self.listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 			rospy.logwarn('TF lookup fail\n')
-			tf_init()
-			return (rospy.Time.now(), rospy.Time.now())
+			self.tf_init()
+			return [[rospy.Time.now(), rospy.Time.now()], [0, 0]]
 
 		x_trans = trans[0]
 		y_trans = trans[1]
@@ -220,8 +217,8 @@ class BookleBridge:
 		w = 0
 		path_r = 0
 		icc = (0, 0)
-		(dl, tmp_tl) = get_left_distance(prev_dis[0])
-		(dr, tmp_tr) = get_right_distance(prev_dis[1])
+		(dl, tmp_tl) = self.get_left_distance(prev_dis[0])
+		(dr, tmp_tr) = self.get_right_distance(prev_dis[1])
 		vl = dl / (tmp_tl - prev_time[0]).to_sec()
 		vr = dr / (tmp_tr - prev_time[1]).to_sec()
 		w = (vr - vl) / l
@@ -251,7 +248,7 @@ class BookleBridge:
 			trans = (result[0][0], result[0][1], 0)
 			rot = tf.transformations.quaternion_from_euler(0, 0, result[0][2])
 		
-		action_state()
+		self.action_state()
 
 		br = tf.TransformBroadcaster()
 		br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
@@ -272,7 +269,7 @@ class BookleBridge:
 		dis_array = [0, 0]
 
 		while not rospy.is_shutdown():
-			[time_array, dis_array] = update_transform(time_array, dis_array)
+			[time_array, dis_array] = self.update_transform(time_array, dis_array)
 
-			clear_serial()		
+			self.clear_serial()		
 			rate.sleep()
