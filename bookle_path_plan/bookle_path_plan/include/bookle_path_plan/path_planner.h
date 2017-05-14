@@ -45,6 +45,7 @@ namespace bookle {
 		ros::Subscriber current_sub_;
 		ros::Publisher path_pub_;
 		ros::Publisher pose_int_pub_;
+		ros::Publisher pose_point_pub_;
 
 		nav_msgs::OccupancyGrid gmap;
 		bool gmap_init;
