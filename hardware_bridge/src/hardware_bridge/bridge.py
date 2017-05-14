@@ -164,15 +164,13 @@ class BookleBridge:
 		return (prev_pu - curr_pu, rospy.Time.now())
 		# return (0.01, rospy.Time.now())
 
-	def theta_diff(self, t1, t2):
-		t_dif = t1 - t2
-		if (t_dif > 3.14)
-			t_dif -= (2 * 3.14)
+	def theta_norm(t):
+		if (t > 3.1415926):
+			t -= (2 * 3.1415926)
 
-		if (t_dif < -3.14)
-			t_dif += (2 * 3.14)
-
-		return t_dif
+		if (t < -3.1415926):
+			t += (2 * 3.1415926)
+		return t
 
 	def action_state(self):
 		if self.motor_run:
@@ -197,26 +195,30 @@ class BookleBridge:
 		y_negative = 1.5707963
 		theta_threshold = 0.0698
 		xy_threshold = 0.1 
+		
 		# if theta change
-		if((theta_next - theta_current > theta_threshold )or(theta_next - theta_current < -theta_threshold)):
-			print 0
+		if(abs(theta_norm(theta_next - theta_current)) > theta_threshold):
 			self.TURN(theta_current,theta_next)
 		else:
 			# if x change
-			if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
-				if(((x_positive - theta_threshold) < theta_current) and (theta_current < (x_positive + theta_threshold))):
-					print 1
+			if(abs(x_next - x_current) > xy_threshold):
+				if((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next > x_current)):
 					self.STRAIGHT(x_current,x_next)
-				elif(((x_negative - theta_threshold) < theta_current) and (theta_current < (x_negative + theta_threshold))):
-					print 2
+				elif((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next < x_current)):
+					self.BACKWARD(x_current,x_next)
+				elif((abs(theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next < x_current)):
+					self.STRAIGHT(x_current,x_next)
+				elif((abs(theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next > x_current)):
 					self.BACKWARD(x_current,x_next)
 			# if y change
-			if((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):		
-				if(((y_positive - theta_threshold) < theta_current) and (theta_current < (y_positive + theta_threshold))):
-					print 3
+			elif((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):
+				if((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next > y_current)):
 					self.STRAIGHT(y_current,y_next)
-				elif(((y_negative - theta_threshold) < theta_current) and (theta_current < (y_negative + theta_threshold))):
-					print 4
+				elif((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next < y_current)):
+					self.BACKWARD(y_current,y_next)
+				elif((abs(theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next < y_current)):
+					self.STRAIGHT(y_current,y_next)
+				elif((abs(theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next > y_current)):
 					self.BACKWARD(y_current,y_next)
 
 	def update_transform(self, prev_time, prev_dis):
