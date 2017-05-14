@@ -167,11 +167,8 @@ class BookleBridge:
 	def action_state(self):
 		if self.motor_run:
 			return
-		if next_point is (0, 0, 0:
+		if self.next_point is (0, 0, 0):
 			return
-
-		print 'current: %s' % (self.current_point,)
-		print 'next: %s' % (self.next_point,)
 
 		x_current = self.current_point[0]
 		x_next = self.next_point[0]
