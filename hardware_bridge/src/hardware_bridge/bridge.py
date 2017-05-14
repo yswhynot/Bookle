@@ -61,6 +61,7 @@ class BookleBridge:
 
 		self.ser_right.write(theta_pu_1_send)
 		self.ser_left.write(theta_pu_2_send)
+                time.sleep(0.01)
 		print "Finish Left Turn"
 
 	def TURN_RIGHT(self, theta_current, theta_next):
@@ -84,6 +85,7 @@ class BookleBridge:
 
 		self.ser_right.write(theta_pu_1_send)
 		self.ser_left.write(theta_pu_2_send)
+                time.sleep(0.01)
 
 	# go straight forward for x_change meter
 	def STRAIGHT(self, xy_current, xy_next):
@@ -110,6 +112,7 @@ class BookleBridge:
 
 		self.ser_left.write(xy_pu_2_send)
 		self.ser_right.write(xy_pu_1_send)
+                time.sleep(0.01)
 		print "Finish Straight"
 
 	# go backforward for x_change meter
@@ -143,6 +146,7 @@ class BookleBridge:
 
 		self.ser_left.write(xy_pu_2_send)
 		self.ser_right.write(xy_pu_1_send)
+                time.sleep(0.01)
 		print "Finish backward"
 
 	def pu2meter(self, line):
@@ -182,6 +186,7 @@ class BookleBridge:
 	def get_right_distance(self, prev_pu):
                 # return (0.001, rospy.Time.now())
 		self.ser_right.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
+                time.sleep(0.01)
 		line = self.ser_right.read(51)
 		curr_pu = self.pu2meter(line)
 
@@ -195,6 +200,7 @@ class BookleBridge:
 	def get_left_distance(self, prev_pu):
                 # return (0.001, rospy.Time.now())
 		self.ser_left.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
+                time.sleep(0.01)
 		line = self.ser_left.read(51)
 		curr_pu = self.pu2meter(line)
 
