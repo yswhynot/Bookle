@@ -45,7 +45,12 @@ namespace bookle {
 			tmp_pose.pose.orientation.z,
 			tmp_pose.pose.orientation.w,
 			r, p, y);
-		float current_yaw = y;
+
+		geometry_msgs::Point point;
+		point.x = tmp_pose.pose.orientation.x; 
+		point.y = tmp_pose.pose.orientation.y; 
+		point.z = y;
+		pose_point_pub_.publish(point);
 
 		start = (Point) {
 			getPoseInt((1 - tmp_pose.pose.position.x) * 100 / 2), 
@@ -60,9 +65,6 @@ namespace bookle {
 		tmp_point.z = start.theta;
 
 		pose_int_pub_.publish(tmp_point);
-
-		tmp_point.z = current_yaw;
-		pose_point_pub_.publish(tmp_point);
 	}
 
 	void PathPlan::PublishPath() {
