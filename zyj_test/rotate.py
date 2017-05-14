@@ -26,7 +26,7 @@ def decode_wheelencoder(line):
 		pu_dec_31 -= 0x100000000
 
 	print "Address:", pu_addr, "PU sum:", pu_dec_51, "PU:", pu_dec_31, "Passed meter:", pu_meter_51, "meter" 
-
+# hi
 	#These flush must be put here
 	# ser1.flushInput()
 	# ser1.flushOutput()
