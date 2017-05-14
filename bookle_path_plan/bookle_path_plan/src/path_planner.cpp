@@ -16,6 +16,7 @@ namespace bookle {
 		// publications
 		path_pub_ = nh.advertise<nav_msgs::Path>("bookle/planned_path", 1);
 		pose_int_pub_ = nh.advertise<geometry_msgs::Point>("bookle/current_pose/int", 1);
+		pose_point_pub_ = nh.advertise<geometry_msgs::Point>("bookle/current_pose/point", 1);
 	}
 
 	PathPlan::~PathPlan() {
@@ -44,6 +45,7 @@ namespace bookle {
 			tmp_pose.pose.orientation.z,
 			tmp_pose.pose.orientation.w,
 			r, p, y);
+		float current_yaw = y;
 
 		start = (Point) {
 			getPoseInt((1 - tmp_pose.pose.position.x) * 100 / 2), 
@@ -58,6 +60,9 @@ namespace bookle {
 		tmp_point.z = start.theta;
 
 		pose_int_pub_.publish(tmp_point);
+
+		tmp_point.z = current_yaw;
+		pose_point_pub_.publish(tmp_point);
 	}
 
 	void PathPlan::PublishPath() {

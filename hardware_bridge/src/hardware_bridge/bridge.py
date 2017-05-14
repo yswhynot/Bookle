@@ -1,138 +1,278 @@
 import rospy
 import tf
+from geometry_msgs import Point
 
 import serial
 import time
 import math
 import numpy as np
 
-def tf_init():
-	br = tf.TransformBroadcaster()
-	br.sendTransform(
-		(0.75, -0.75, 0),
-		tf.transformations.quaternion_from_euler(0, 0, 0),
-		rospy.Time.now(),
-		'base_footprint',
-		'odom')
+from crc import crc
 
-def init():
-	rospy.init_node('hardware_bridge', anonymous=True)
+class BookleBridge:
+	def __init__(self):
+		rospy.init_node('hardware_bridge', anonymous=True)
+		
+		self.motor_run = False
+		self.current_point = (0, 0, 0)
+		self.next_point = (0, 0, 0)
 
-def init_serial(ser_left, ser_right):
-	ser_left.write(b'\x01\x06\x00\x00\x00\x01\x48\x0A')
-	ser_right.write(b'\x02\x06\x00\x00\x00\x01\x48\x39')
-	rospy.loginfo('Motor set up done\n')
+		self.ser_left = serial.Serial('/dev/ttyUSB1', 19200)
+		self.ser_right = serial.Serial('/dev/ttyUSB2', 19200)
+		rospy.loginfo('Serial connected\n')
+		
+		self.listener = tf.TransformListener()
+		self.target_sub = rospy.Subscriber("/bookle/target_pose", Point, self.target_cb, queue_size = 1)
+		self.current_sub = rospy.Subscriber("/bookle/current_pose/point", Point, self.current_cb, queue_size = 1)
 
-def action_left(ser_left):
-	ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
+	def target_cb(self, input):
+		self.next_point = (input.x, input.y, input.z)
 
-def action_right(ser_right):
-	ser_right.write(b'\x02\x78\xFF\xF9\xE5\x80\x0A\xE6')
+	def current_cb(self, input):
+		self.current_point = (input.x, input.y, input.z)
 
-def parse_pu(line):
-	pu_addr = " ".join(hex(ord(n))[2:] for n in line[:1])
-	pu_hex = [" ".join(hex(ord(n))[2:] for n in line[-2:-1]),
-		" ".join(hex(ord(n))[2:] for n in line[-1:]),
-		" ".join(hex(ord(n))[2:] for n in line[-4:-3]),
-		" ".join(hex(ord(n))[2:] for n in line[-3:-2])]
-	pu_hex_fill = pu_hex[0].zfill(2) + pu_hex[1].zfill(2) + pu_hex[2].zfill(2) + pu_hex[3].zfill(2)
-	pu_dec = int(pu_hex_fill, 16)
-	pu_meter = float(pu_dec / 366936)
-	return pu_meter
+	def tf_init(self):
+		br = tf.TransformBroadcaster()
+		br.sendTransform(
+			(0.75, -0.75, 0),
+			tf.transformations.quaternion_from_euler(0, 0, 0),
+			rospy.Time.now(),
+			'base_footprint',
+			'odom')
 
-def get_left_distance(ser_left, prev_pu):
-	ser_left.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
-	line = ser_left.read(51)
+	def TURN(theta_current, theta_next):
+		theta_threshold = 0.0698
+		
+		theta_change = 81000*(theta_next - theta_current)
+		theta_pu = int(theta_change)
+		
+		theta_pu_1 = "01" + "78" + (hex(theta_pu)[2:]).zfill(8)
+		theta_pu_1_crc = crc(theta_pu_1) 
+		theta_pu_1_crc_hex = hex(theta_pu_1_crc)[2:]
+		theta_pu_1_string = theta_pu_1 + theta_pu_1_crc_hex
+		theta_pu_1_send = theta_pu_1_string.decode('hex')
 
-	return (prev_pu - parse_pu(line), rospy.Time.now())
-	# return (0.01, rospy.Time.now())
+		theta_pu_2 = "02" + "78" + (hex(theta_pu)[2:]).zfill(8)
+		theta_pu_2_crc = crc(theta_pu_2)
+		theta_pu_2_crc_hex = hex(theta_pu_2_crc)[2:]
+		theta_pu_2_string = theta_pu_2 + theta_pu_2_crc_hex
+		theta_pu_2_send = theta_pu_2_string.decode('hex')	
 
-def get_right_distance(ser_right, prev_pu):
-	ser_right.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
-	line = ser_right.read(51)
+		self.ser_left.write(theta_pu_2_send)
+		self.ser_right.write(theta_pu_1_send)
+		print "Finish Turn"
 
-	return (prev_pu - parse_pu(line), rospy.Time.now())
-	# return (0.01, rospy.Time.now())
+	# go straight forward for x_change meter
+	def STRAIGHT(xy_current, xy_next):
+		xy_threshold = 0.1 
+		
+		xy_change = 366936*(xy_next - xy_current)
+		xy_pu = int(xy_change)
 
-def update_transform(listener, prev_time, prev_dis, ser_left, ser_right):
-	try:
-		(trans, rot) = listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
-	except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-		rospy.logwarn('TF lookup fail\n')
-		tf_init()
-		return (rospy.Time.now(), rospy.Time.now())
+		xy_pu_1 = "01" + "78" + (hex(xy_pu)[2:]).zfill(8)
+		xy_pu_1_crc = crc(xy_pu_1)
+		xy_pu_1_crc_hex = hex(xy_pu_1_crc)[2:]
+		xy_pu_1_string = xy_pu_1 + xy_pu_1_crc_hex
+		xy_pu_1_send = xy_pu_1_string.decode('hex')
 
-	x_trans = trans[0]
-	y_trans = trans[1]
-	euler = tf.transformations.euler_from_quaternion(rot)
-	yaw = euler[2]
+		xy_pu_2 = "02" + "78" + hex(-xy_pu & (2**32-1))[2:10]
+		xy_pu_2_crc = crc(xy_pu_2)
+		xy_pu_2_crc_hex = hex(xy_pu_2_crc)[2:]
+		xy_pu_2_string = xy_pu_2 + xy_pu_2_crc_hex
+		xy_pu_2_send = xy_pu_2_string.decode('hex')	
 
-	# Calculate differetial drive params
-	l = 0.43
-	w = 0
-	path_r = 0
-	icc = (0, 0)
-	(dl, tmp_tl) = get_left_distance(ser_left, prev_dis[0])
-	(dr, tmp_tr) = get_right_distance(ser_right, prev_dis[1])
-	vl = dl / (tmp_tl - prev_time[0]).to_sec()
-	vr = dr / (tmp_tr - prev_time[1]).to_sec()
-	w = (vr - vl) / l
-	if vl != vr:
-		path_r = l * (vl + vr) / (2 * (vr - vl))
-	else:
-		path_r = -1
+		self.ser_left.write(xy_pu_2_send)
+		self.ser_right.write(xy_pu_1_send)
+		print "Finish Straight"
 
-	# Straight line motion
-	if path_r == -1:
-		trans = (trans[0] + (dl + dr) / 2 * math.cos(yaw), 
-			trans[1] + (dl + dr) / 2 * math.sin(yaw), 
-			0)
-	else:
-		icc = (x_trans - (path_r * math.sin(yaw)), y_trans + (path_r * math.cos(yaw)))
+	# go backforward for x_change meter
+	def BACKWARD(xy_current, xy_next):
+		xy_threshold = 0.1 
 
-		time_dif = ((tmp_tl - prev_time[0]).to_sec() + (tmp_tr - prev_time[1]).to_sec()) / 2
-		angle_dif = w * time_dif
-		dif_vec = np.array([icc[0], icc[1], angle_dif])
-		origin_vec = np.array([x_trans - icc[0], y_trans - icc[1], yaw])
-		rot_mat = np.matrix([
-			[math.cos(angle_dif), -math.sin(angle_dif), 0],
-			[math.sin(angle_dif), math.cos(angle_dif), 0],
-			[0, 0, 1]])
-		result = np.add(np.dot(rot_mat, origin_vec), dif_vec).tolist()
+		xy_change = 366936*(xy_next - xy_current)
+		xy_pu = int(xy_change)
 
-		trans = (result[0][0], result[0][1], 0)
-		rot = tf.transformations.quaternion_from_euler(0, 0, result[0][2])
-	
-	action_left(ser_left)
-	action_right(ser_right)
+		xy_pu_1 = "01" + "78" + hex(xy_pu & (2**32-1))[2:10]
+		xy_pu_1_crc = crc(xy_pu_1)
+		xy_pu_1_crc_hex = hex(xy_pu_1_crc)[2:]
+		xy_pu_1_string = xy_pu_1 + xy_pu_1_crc_hex
+		xy_pu_1_send = xy_pu_1_string.decode('hex')
+	    #this one is correct
+		xy_pu_2 = "02" + "78" + (hex(-xy_pu)[2:]).zfill(8)
+		xy_pu_2_crc = crc(xy_pu_2)
+		xy_pu_2_crc_hex = hex(xy_pu_2_crc)[2:]
+		xy_pu_2_string = xy_pu_2 + xy_pu_2_crc_hex
+		xy_pu_2_send = xy_pu_2_string.decode('hex')	
 
-	br = tf.TransformBroadcaster()
-	br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
+		self.ser_left.write(xy_pu_2_send)
+		self.ser_right.write(xy_pu_1_send)
+		print "Finish backward"
 
-	return [[tmp_tl, tmp_tr], [dl + prev_dis[0], dr + prev_dis[1]]]
+	def action_state(self):
+		pass
 
-def clear_serial(ser_left, ser_right):
-	ser_left.flushInput()
-	ser_left.flushOutput()
-	ser_right.flushInput()
-	ser_right.flushOutput()
+	def pu2meter(self, line):
+		pu_addr = " ".join(hex(ord(n))[2:] for n in line[:1])
+		if ((pu_addr is not "1") or (pu_addr is not "2")):
+			return None
 
-def start():
-	rospy.loginfo('Hardware bridge started :)\n')
-	init()
-	ser_left = serial.Serial('/dev/ttyUSB2', 19200)
-	ser_right = serial.Serial('/dev/ttyUSB1', 19200)
-	rospy.loginfo('Serial connected\n')
-	init_serial(ser_left, ser_right)
+		pu_hex = [" ".join(hex(ord(n))[2:] for n in line[-2:-1]),
+			" ".join(hex(ord(n))[2:] for n in line[-1:]),
+			" ".join(hex(ord(n))[2:] for n in line[-4:-3]),
+			" ".join(hex(ord(n))[2:] for n in line[-3:-2])]
+		pu_hex_fill = pu_hex[0].zfill(2) + pu_hex[1].zfill(2) + pu_hex[2].zfill(2) + pu_hex[3].zfill(2)
+		pu_dec = int(pu_hex_fill, 16)
+		if pu_dec > 0x7FFFFFFF:
+			pu_dec -= 0x100000000
+		pu_meter = float(pu_dec) / 366936
 
-	rate = rospy.Rate(10)
-	listener = tf.TransformListener()
+		if(pu_meter > 30):
+			return None
 
-	time_array = [rospy.Time.now(), rospy.Time.now()]
-	dis_array = [0, 0]
+		pu_hex_set = [" ".join(hex(ord(n))[2:] for n in line[29:30]),
+			" ".join(hex(ord(n))[2:] for n in line[30:31]),
+			" ".join(hex(ord(n))[2:] for n in line[27:28]),
+			" ".join(hex(ord(n))[2:] for n in line[28:29])]
+		pu_hex_set_fill = pu_hex_set[0].zfill(2) + pu_hex_set[1].zfill(2) + pu_hex_set[2].zfill(2) + pu_hex_set[3].zfill(2)
+		pu_dec_set = int(pu_hex_set_fill, 16)
+		if pu_dec_set > 0x7FFFFFFF:
+			pu_dec_set -= 0x100000000
 
-	while not rospy.is_shutdown():
-		[time_array, dis_array] = update_transform(listener, time_array, dis_array ser_left, ser_right)
+		if(pu_dec_31 == 0):
+			self.motor_run = False
+		elif(pu_dec_31 is not "0"):
+			self.motor_run = True
 
-		clear_serial(ser_left, ser_right)		
-		rate.sleep()
+		return pu_meter
+
+	def get_left_distance(self, prev_pu):
+		self.ser_right.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
+		line = self.ser_right.read(51)
+		curr_pu = pu2meter(line)
+
+		if curr_pu is None:
+			return (0, rospy.Time.now())
+
+		return (prev_pu - curr_pu, rospy.Time.now())
+		# return (0.01, rospy.Time.now())
+
+	def get_right_distance(self, prev_pu):
+		self.ser_left.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
+		line = self.ser_left.read(51)
+		curr_pu = pu2meter(line)
+
+		if curr_pu is None:
+			return (0, rospy.Time.now())
+
+		return (prev_pu - curr_pu, rospy.Time.now())
+		# return (0.01, rospy.Time.now())
+
+	def action_state():
+		if self.motor_run:
+			return
+
+		x_current = self.current_point[0]
+		x_next = self.next_point[0]
+		y_current = self.current_point[1]
+		y_next = self.next_point[1]
+		theta_current = self.current_point[2]
+		theta_next = self.next_point[2]
+
+		#define position theta
+		x_positive = 0
+		x_negative = -3.1415926
+		y_positive = -1.5707963
+		y_negative = 1.5707963
+		theta_threshold = 0.0698
+		xy_threshold = 0.1 
+		# if theta change
+		if((theta_next - theta_current > theta_threshold )or(theta_next - theta_current < -theta_threshold)):
+			TURN(theta_current,theta_next)
+		# if x change
+		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
+			if(((x_positive - theta_threshold) < theta_current) and (theta_current < (x_positive + theta_threshold))):
+				STRAIGHT(x_current,x_next)
+			elif(((x_negative - theta_threshold) < theta_current) and (theta_current < (x_negative + theta_threshold))):
+				BACKWARD(x_current,x_next)
+		# if y change
+		if((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):		
+			if(((y_positive - theta_threshold) < theta_current) and (theta_current < (y_positive + theta_threshold))):
+				STRAIGHT(y_current,y_next)
+			elif(((y_negative - theta_threshold) < theta_current) and (theta_current < (y_negative + theta_threshold))):
+				BACKWARD(y_current,y_next)
+		print "Finish Actionn\n"
+
+	def update_transform(self, prev_time, prev_dis):
+		try:
+			(trans, rot) = self.listener.lookupTransform('/odom', '/base_footprint', rospy.Time(0))
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+			rospy.logwarn('TF lookup fail\n')
+			tf_init()
+			return (rospy.Time.now(), rospy.Time.now())
+
+		x_trans = trans[0]
+		y_trans = trans[1]
+		euler = tf.transformations.euler_from_quaternion(rot)
+		yaw = euler[2]
+
+		# Calculate differetial drive params
+		l = 0.43
+		w = 0
+		path_r = 0
+		icc = (0, 0)
+		(dl, tmp_tl) = get_left_distance(prev_dis[0])
+		(dr, tmp_tr) = get_right_distance(prev_dis[1])
+		vl = dl / (tmp_tl - prev_time[0]).to_sec()
+		vr = dr / (tmp_tr - prev_time[1]).to_sec()
+		w = (vr - vl) / l
+		if vl != vr:
+			path_r = l * (vl + vr) / (2 * (vr - vl))
+		else:
+			path_r = -1
+
+		# Straight line motion
+		if path_r == -1:
+			trans = (trans[0] + (dl + dr) / 2 * math.cos(yaw), 
+				trans[1] + (dl + dr) / 2 * math.sin(yaw), 
+				0)
+		else:
+			icc = (x_trans - (path_r * math.sin(yaw)), y_trans + (path_r * math.cos(yaw)))
+
+			time_dif = ((tmp_tl - prev_time[0]).to_sec() + (tmp_tr - prev_time[1]).to_sec()) / 2
+			angle_dif = w * time_dif
+			dif_vec = np.array([icc[0], icc[1], angle_dif])
+			origin_vec = np.array([x_trans - icc[0], y_trans - icc[1], yaw])
+			rot_mat = np.matrix([
+				[math.cos(angle_dif), -math.sin(angle_dif), 0],
+				[math.sin(angle_dif), math.cos(angle_dif), 0],
+				[0, 0, 1]])
+			result = np.add(np.dot(rot_mat, origin_vec), dif_vec).tolist()
+
+			trans = (result[0][0], result[0][1], 0)
+			rot = tf.transformations.quaternion_from_euler(0, 0, result[0][2])
+		
+		action_state()
+
+		br = tf.TransformBroadcaster()
+		br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
+
+		return [[tmp_tl, tmp_tr], [dl + prev_dis[0], dr + prev_dis[1]]]
+
+	def clear_serial(self):
+		self.ser_right.flushInput()
+		self.ser_right.flushOutput()
+		self.ser_left.flushInput()
+		self.ser_left.flushOutput()
+
+	def start(self):
+		rospy.loginfo('Hardware bridge started :)\n')
+		rate = rospy.Rate(10)
+
+		time_array = [rospy.Time.now(), rospy.Time.now()]
+		dis_array = [0, 0]
+
+		while not rospy.is_shutdown():
+			[time_array, dis_array] = update_transform(time_array, dis_array)
+
+			clear_serial()		
+			rate.sleep()
