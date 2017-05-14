@@ -176,6 +176,9 @@ class BookleBridge:
 		y_next = self.next_point[1]
 		theta_current = self.current_point[2]
 		theta_next = self.next_point[2]
+		
+		print 'current: %s' % (self.current_point,)
+		print 'next: %s' % (self.next_point,)
 
 		#define position theta
 		x_positive = 0
@@ -186,20 +189,24 @@ class BookleBridge:
 		xy_threshold = 0.1 
 		# if theta change
 		if((theta_next - theta_current > theta_threshold )or(theta_next - theta_current < -theta_threshold)):
+			print 0
 			self.TURN(theta_current,theta_next)
 		# if x change
 		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
 			if(((x_positive - theta_threshold) < theta_current) and (theta_current < (x_positive + theta_threshold))):
+				print 1
 				self.STRAIGHT(x_current,x_next)
 			elif(((x_negative - theta_threshold) < theta_current) and (theta_current < (x_negative + theta_threshold))):
+				print 2
 				self.BACKWARD(x_current,x_next)
 		# if y change
 		if((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):		
 			if(((y_positive - theta_threshold) < theta_current) and (theta_current < (y_positive + theta_threshold))):
+				print 3
 				self.STRAIGHT(y_current,y_next)
 			elif(((y_negative - theta_threshold) < theta_current) and (theta_current < (y_negative + theta_threshold))):
+				print 4
 				self.BACKWARD(y_current,y_next)
-		print "Finish Actionn\n"
 
 	def update_transform(self, prev_time, prev_dis):
 		try:

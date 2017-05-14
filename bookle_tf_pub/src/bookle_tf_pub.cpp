@@ -13,7 +13,8 @@ namespace bookle {
 				ros::Time(0), transform);
 		}
 		catch (tf::TransformException ex){
-			ROS_ERROR("%s", ex.what());
+			// ROS_ERROR("%s", ex.what());
+			return;
 		}
 
 		tf::transformStampedTFToMsg(transform, trans_stamp);
