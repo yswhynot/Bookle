@@ -26,13 +26,7 @@ def decode_wheelencoder(line):
 		pu_dec_31 -= 0x100000000
 
 	print "Address:", pu_addr, "PU sum:", pu_dec_51, "PU:", pu_dec_31, "Passed meter:", pu_meter_51, "meter" 
-# hi
-	#These flush must be put here
-	# ser1.flushInput()
-	# ser1.flushOutput()
-	# ser2.flushInput()
-	# ser2.flushOutput()
-	#just for testing
+
 	if(pu_dec_31 == 0):
 		flag_move = 0
 		print "Current state:", flag_move
@@ -54,24 +48,20 @@ def get_wheelencoder():
 	decode_wheelencoder(line2)
 
 
-def TURN(theta_current,theta_next):
-	theta_threshold = 0.0698
+def TURN_LEFT(theta_current,theta_next):
 
-	if(theta_next - theta_current >0):
-		theta_change = 81000*(theta_next - theta_current)
-	elif(theta_next - theta_current <0):
-		theta_change = 81000*(theta_current - theta_next)
-	
-	# theta_change = 81000*(theta_next - theta_current)
+	theta_threshold = 0.0698
+	theta_change = 81000*(theta_next - theta_current)
+
 	theta_pu = int(theta_change)
 	
-	theta_pu_1 = "01" + "78" + (hex(theta_pu)[2:]).zfill(8)
+	theta_pu_1 = "01" + "78" + (hex(-theta_pu)[2:]).zfill(8)
 	theta_pu_1_crc = crc(theta_pu_1) 
 	theta_pu_1_crc_hex = hex(theta_pu_1_crc)[2:]
 	theta_pu_1_string = theta_pu_1 + theta_pu_1_crc_hex
 	theta_pu_1_send = theta_pu_1_string.decode('hex')
 
-	theta_pu_2 = "02" + "78" + (hex(theta_pu)[2:]).zfill(8)
+	theta_pu_2 = "02" + "78" + (hex(-theta_pu)[2:]).zfill(8)
 	theta_pu_2_crc = crc(theta_pu_2)
 	theta_pu_2_crc_hex = hex(theta_pu_2_crc)[2:]
 	theta_pu_2_string = theta_pu_2 + theta_pu_2_crc_hex
@@ -79,7 +69,30 @@ def TURN(theta_current,theta_next):
 
 	ser1.write(theta_pu_1_send)
 	ser2.write(theta_pu_2_send)
-	print "Finish Turn"
+	print "Finish Left Turn"
+
+def TURN_RIGHT(theta_current,theta_next):
+
+	theta_threshold = 0.0698
+	theta_change = 81000*(theta_next - theta_current)
+
+	theta_pu = int(theta_change)
+
+	theta_pu_1 = "01" + "78" + hex(-theta_pu & (2**32-1))[2:10]
+	theta_pu_1_crc = crc(theta_pu_1) 
+	theta_pu_1_crc_hex = hex(theta_pu_1_crc)[2:]
+	theta_pu_1_string = theta_pu_1 + theta_pu_1_crc_hex
+	theta_pu_1_send = theta_pu_1_string.decode('hex')
+
+	theta_pu_2 = "02" + "78" + hex(-theta_pu & (2**32-1))[2:10]
+	theta_pu_2_crc = crc(theta_pu_2)
+	theta_pu_2_crc_hex = hex(theta_pu_2_crc)[2:]
+	theta_pu_2_string = theta_pu_2 + theta_pu_2_crc_hex
+	theta_pu_2_send = theta_pu_2_string.decode('hex')	
+
+	ser1.write(theta_pu_1_send)
+	ser2.write(theta_pu_2_send)
+	print "Finish Right Turn"	
 
 # go straight forward for x_change meter
 def STRAIGHT(xy_current,xy_next):
@@ -116,7 +129,6 @@ def BACKWARD(xy_current,xy_next):
 	elif(xy_next - xy_current > 0):
 		xy_change = 366936*(xy_current - xy_next)
 
-	xy_change = 366936*(xy_next - xy_current)
 	xy_pu = int(xy_change)
 
 	xy_pu_1 = "01" + "78" + hex(xy_pu & (2**32-1))[2:10]
@@ -141,7 +153,6 @@ def theta_norm(t):
 
 	if (t < -3.1415926):
 		t += (2 * 3.1415926)
-	print t
 	return t
 
 
@@ -155,7 +166,11 @@ def action_state(x_current, x_next, y_current, y_next, theta_current, theta_next
 	xy_threshold = 0.1 
 	# if theta change
 	if((theta_norm(theta_next - theta_current) > theta_threshold ) or (theta_norm(theta_next - theta_current) < -theta_threshold)):
-		TURN(theta_current,theta_next)
+		if(theta_norm(theta_current - theta_next) > theta_threshold):
+			TURN_LEFT(theta_current,theta_next)
+		elif(theta_norm(theta_next - theta_current) > theta_threshold):
+			TURN_RIGHT(theta_current,theta_next)
+
 	else:
 		# if x change
 		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
@@ -190,7 +205,7 @@ if __name__ == '__main__':
 	time.sleep(0.1)
 
 	#Move
-	action_state(0,0,0,0,-1.57,0)
+	action_state(0,0,1,0,1.57,1.57)
 	#this sleep cannot be deleted
 	time.sleep(0.1)
 
