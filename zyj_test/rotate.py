@@ -174,14 +174,18 @@ def action_state(x_current, x_next, y_current, y_next, theta_current, theta_next
 	xy_threshold = 0.1 
 	# if theta change
 	if((theta_norm(theta_next - theta_current) > theta_threshold ) or (theta_norm(theta_next - theta_current) < -theta_threshold)):
-		if(theta_norm(theta_current - theta_next) > theta_threshold):
+		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)or(y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):
+			return 
+		elif(theta_norm(theta_current - theta_next) > theta_threshold):
 			TURN_LEFT(theta_current,theta_next)
 		elif(theta_norm(theta_next - theta_current) > theta_threshold):
 			TURN_RIGHT(theta_current,theta_next)
 	else:
 		# if x change
 		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
-			if((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next > x_current)):
+			if((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):
+				return
+			elif((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next > x_current)):
 				STRAIGHT(x_current,x_next)
 			elif((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next < x_current)):
 				BACKWARD(x_current,x_next)
@@ -191,7 +195,9 @@ def action_state(x_current, x_next, y_current, y_next, theta_current, theta_next
 				BACKWARD(x_current,x_next)
 		# if y change
 		elif((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):
-			if((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next > y_current)):
+			if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
+				return
+			elif((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next > y_current)):
 				STRAIGHT(y_current,y_next)
 			elif((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next < y_current)):
 				BACKWARD(y_current,y_next)
@@ -210,7 +216,7 @@ if __name__ == '__main__':
 	ser2.write(b'\x02\x06\x00\x00\x00\x01\x48\x39')
 	time.sleep(0.1)
 	#Move
-	action_state(-1.1040203,0.3789542,-2.3734583,-1.9865789,-3.13987643,-3.14)
+	action_state(-1.1040203,0.3789542,-2.3734583,-2.3734583,-3.13987643,-3.14)
 	#this sleep cannot be deleted
 	time.sleep(0.1)
 
