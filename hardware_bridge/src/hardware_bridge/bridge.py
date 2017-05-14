@@ -40,7 +40,7 @@ class BookleBridge:
 			'base_footprint',
 			'odom')
 
-	def TURN(theta_current, theta_next):
+	def TURN(self, theta_current, theta_next):
 		theta_threshold = 0.0698
 		
 		theta_change = 81000*(theta_next - theta_current)
@@ -63,7 +63,7 @@ class BookleBridge:
 		print "Finish Turn"
 
 	# go straight forward for x_change meter
-	def STRAIGHT(xy_current, xy_next):
+	def STRAIGHT(self, xy_current, xy_next):
 		xy_threshold = 0.1 
 		
 		xy_change = 366936*(xy_next - xy_current)
@@ -86,7 +86,7 @@ class BookleBridge:
 		print "Finish Straight"
 
 	# go backforward for x_change meter
-	def BACKWARD(xy_current, xy_next):
+	def BACKWARD(self, xy_current, xy_next):
 		xy_threshold = 0.1 
 
 		xy_change = 366936*(xy_next - xy_current)
@@ -167,6 +167,11 @@ class BookleBridge:
 	def action_state(self):
 		if self.motor_run:
 			return
+		if next_point is (0, 0, 0:
+			return
+
+		print 'current: %s' % (self.current_point,)
+		print 'next: %s' % (self.next_point,)
 
 		x_current = self.current_point[0]
 		x_next = self.next_point[0]
@@ -184,19 +189,19 @@ class BookleBridge:
 		xy_threshold = 0.1 
 		# if theta change
 		if((theta_next - theta_current > theta_threshold )or(theta_next - theta_current < -theta_threshold)):
-			TURN(theta_current,theta_next)
+			self.TURN(theta_current,theta_next)
 		# if x change
 		if((x_next - x_current > xy_threshold )or(x_next - x_current < -xy_threshold)):
 			if(((x_positive - theta_threshold) < theta_current) and (theta_current < (x_positive + theta_threshold))):
-				STRAIGHT(x_current,x_next)
+				self.STRAIGHT(x_current,x_next)
 			elif(((x_negative - theta_threshold) < theta_current) and (theta_current < (x_negative + theta_threshold))):
-				BACKWARD(x_current,x_next)
+				self.BACKWARD(x_current,x_next)
 		# if y change
 		if((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):		
 			if(((y_positive - theta_threshold) < theta_current) and (theta_current < (y_positive + theta_threshold))):
-				STRAIGHT(y_current,y_next)
+				self.STRAIGHT(y_current,y_next)
 			elif(((y_negative - theta_threshold) < theta_current) and (theta_current < (y_negative + theta_threshold))):
-				BACKWARD(y_current,y_next)
+				self.BACKWARD(y_current,y_next)
 		print "Finish Actionn\n"
 
 	def update_transform(self, prev_time, prev_dis):
