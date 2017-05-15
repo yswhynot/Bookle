@@ -40,9 +40,9 @@ class BookleBridge:
 			'base_footprint',
 			'odom')
 
-        def test_wheel(self):
-            self.ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
-            self.ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
+	def test_wheel(self):
+		self.ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
+		self.ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
 
 	def TURN_LEFT(self, theta_current, theta_next):
 
@@ -65,7 +65,6 @@ class BookleBridge:
 
 		self.ser_right.write(theta_pu_1_send)
 		self.ser_left.write(theta_pu_2_send)
-                time.sleep(0.01)
 		print "Finish Left Turn"
 
 	def TURN_RIGHT(self, theta_current, theta_next):
@@ -89,7 +88,6 @@ class BookleBridge:
 
 		self.ser_right.write(theta_pu_1_send)
 		self.ser_left.write(theta_pu_2_send)
-                time.sleep(0.01)
 
 	# go straight forward for x_change meter
 	def STRAIGHT(self, xy_current, xy_next):
