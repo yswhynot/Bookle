@@ -9,7 +9,7 @@ namespace bookle {
 
 	void TFPub::PublishCurrentPose() {
 		try{
-			tf_listener.lookupTransform("/odom", "/base_footprint",  
+			tf_listener.lookupTransform("/map", "/base_footprint",  
 				ros::Time(0), transform);
 		}
 		catch (tf::TransformException ex){
