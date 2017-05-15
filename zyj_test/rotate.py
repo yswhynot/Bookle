@@ -210,8 +210,8 @@ def action_state(x_current, x_next, y_current, y_next, theta_current, theta_next
 
 if __name__ == '__main__':
 	#Basic set up
-	ser1 = serial.Serial('COM5', 19200) 
-	ser2 = serial.Serial('COM9', 19200)
+	ser1 = serial.Serial('/dev/ttyUSB2', 19200) 
+	ser2 = serial.Serial('/dev/ttyUSB1', 19200)
 	ser1.write(b'\x01\x06\x00\x00\x00\x01\x48\x0A')
 	ser2.write(b'\x02\x06\x00\x00\x00\x01\x48\x39')
 	time.sleep(0.1)

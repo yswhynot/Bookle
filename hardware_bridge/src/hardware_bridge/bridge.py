@@ -14,8 +14,8 @@ class BookleBridge:
 		rospy.init_node('hardware_bridge', anonymous=True)
 		
 		self.motor_run = False
-		self.current_point = (0, 0, 0)
-		self.next_point = (0, 0, 0)
+		self.current_point = (0.0, 0.0, 0.0)
+		self.next_point = (0.0, 0.0, 0.0)
 
 		self.ser_left = serial.Serial('/dev/ttyUSB1', 19200)
 		self.ser_right = serial.Serial('/dev/ttyUSB2', 19200)
@@ -39,6 +39,10 @@ class BookleBridge:
 			rospy.Time.now(),
 			'base_footprint',
 			'odom')
+
+        def test_wheel(self):
+            self.ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
+            self.ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
 
 	def TURN_LEFT(self, theta_current, theta_next):
 
@@ -89,6 +93,7 @@ class BookleBridge:
 
 	# go straight forward for x_change meter
 	def STRAIGHT(self, xy_current, xy_next):
+                print 'Before straight' 
 		xy_threshold = 0.1 
 		
 		if(xy_next - xy_current >0):
@@ -222,8 +227,10 @@ class BookleBridge:
                 # return
 		if self.motor_run:
 			return
-		if self.next_point is (0.0, 0.0, 0.0):
+                if self.next_point == (0.0, 0.0, 0.0):
 			return
+
+                self.motor_run = True 
 
 		x_current = self.current_point[0]
 		x_next = self.next_point[0]
