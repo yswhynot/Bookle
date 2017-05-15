@@ -192,10 +192,21 @@ if __name__ == '__main__':
 	time.sleep(11)
 	#turn right for 90
 	TURN_RIGHT(0,1.57)
-	time.sleep(1)
+	#delay longer to fake the time for putting book
+	time.sleep(8)
+	#go back to start point
+	TURN_RIGHT(0,1.57)
+	time.sleep(5)
+	STRAIGHT(0,1)
+	time.sleep(11)
+	TURN_RIGHT
+	TURN_RIGHT(0,1.57)
+	time.sleep(5)
+	STRAIGHT(0,1)
+	time.sleep(11)
+	TURN_RIGHT(0,3.14)
+	time.sleep(5)
 
-	# #this sleep cannot be deleted
-	# time.sleep(0.1)
 
 
 	ser1.close()
