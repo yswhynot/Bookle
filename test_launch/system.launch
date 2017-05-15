@@ -1,0 +1,22 @@
+<launch>
+	<node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+		<param name="serial_port" type="string" value="/dev/ttyUSB0" />
+		<param name="serial_baudrate" type="int" value="115200" />
+		<param name="frame_id" type="string" value="base_laser" />
+		<param name="inverted" type="bool" value="false" />
+		<param name="angle_compensate" type="bool" value="true" />
+	</node>
+	<node pkg="gmapping" name="slam_gmapping" type="slam_gmapping" args="scan:=/scan" output="screen">
+		<param name="base_frame" value="base_footprint"/>
+		<param name="odom_frame" value="odom"/>
+		<param name="xmin" value="-1" />
+		<param name="xmax" value="1" />
+		<param name="ymin" value="-1" />
+		<param name="ymax" value="1" />
+		<param name="maxRange" value="6.0" />
+		<param name="map_update_interval" value="2" />
+	</node>
+	<node name="odom_link_broadcast" pkg="tf" type="static_transform_publisher" output="screen" args="0 0 0 0 0 0 1 odom base_footprint 200" />
+	<node name="footprint_link_broadcast" pkg="tf" type="static_transform_publisher" output="screen" args="0 0 0 0 0 0 1 base_footprint base_link 200" />
+	<node name="link_laser_broadcast" pkg="tf" type="static_transform_publisher" output="screen" args="0.1 0 0.135 0 0 0 1 base_link base_laser 200" />
+</launch>
