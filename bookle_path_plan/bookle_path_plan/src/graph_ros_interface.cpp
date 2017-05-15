@@ -25,7 +25,6 @@ namespace bookle {
 		} // end for x
 
 		if(grid_graph.UpdateBarrier(barrier_set)) {
-			ROS_INFO("\n\n-----------------------------\nBarrier map:\n");
 			return true;
 		}
 		

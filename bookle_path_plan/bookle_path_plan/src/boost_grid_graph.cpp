@@ -98,10 +98,11 @@ namespace bookle {
 
 	void GridGraph::PrintBarrierMap() {
 		printf("Barrier Map:\n");
-		for(long unsigned int x = 0; x < 100; x++) {
-			for(long unsigned int y = 0; y < 100; y++) {
+		for(long unsigned int x = 0; x < 70; x++) {
+			for(long unsigned int y = 0; y < 70; y++) {
 				if(hasBarrier(bVertexDescriptor {{x, y, 0}})) printf("x");
 				else printf("-");
+				printf(" ");
 			}
 			printf("\n");
 		}
