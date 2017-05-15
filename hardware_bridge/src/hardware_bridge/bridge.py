@@ -14,8 +14,8 @@ class BookleBridge:
 		rospy.init_node('hardware_bridge', anonymous=True)
 		
 		self.motor_run = False
-		self.current_point = (0, 0, 0)
-		self.next_point = (0, 0, 0)
+		self.current_point = (0.0, 0.0, 0.0)
+		self.next_point = (0.0, 0.0, 0.0)
 
 		self.ser_left = serial.Serial('/dev/ttyUSB1', 19200)
 		self.ser_right = serial.Serial('/dev/ttyUSB2', 19200)
@@ -39,6 +39,10 @@ class BookleBridge:
 			rospy.Time.now(),
 			'base_footprint',
 			'odom')
+
+	def test_wheel(self):
+		self.ser_left.write(b'\x01\x78\x00\x06\x1A\x80\x4B\x01')
+		self.ser_right.write(b'\x02\x78\x00\x06\x1A\x80\x4B\x32')
 
 	def TURN_LEFT(self, theta_current, theta_next):
 
@@ -87,6 +91,7 @@ class BookleBridge:
 
 	# go straight forward for x_change meter
 	def STRAIGHT(self, xy_current, xy_next):
+                print 'Before straight' 
 		xy_threshold = 0.1 
 		
 		if(xy_next - xy_current >0):
@@ -110,6 +115,7 @@ class BookleBridge:
 
 		self.ser_left.write(xy_pu_2_send)
 		self.ser_right.write(xy_pu_1_send)
+                time.sleep(0.01)
 		print "Finish Straight"
 
 	# go backforward for x_change meter
@@ -118,6 +124,9 @@ class BookleBridge:
 
 		xy_change = 366936*(xy_next - xy_current)
 		xy_pu = int(xy_change)
+
+                print 'xy_change: '
+                print xy_change
 
 		xy_pu_1 = "01" + "78" + hex(xy_pu & (2**32-1))[2:10]
 		xy_pu_1_crc = crc(xy_pu_1)
@@ -131,8 +140,16 @@ class BookleBridge:
 		xy_pu_2_string = xy_pu_2 + xy_pu_2_crc_hex
 		xy_pu_2_send = xy_pu_2_string.decode('hex')	
 
+                print 'xy_pu_1_string: '
+                print xy_pu_1_string
+                # print 'xy_pu_2_send: '
+                # print hex(xy_pu_2_send)
+                # print 'xy_pu_1_send: '
+                # print hex(xy_pu_1_send)
+
 		self.ser_left.write(xy_pu_2_send)
 		self.ser_right.write(xy_pu_1_send)
+                time.sleep(0.01)
 		print "Finish backward"
 
 	def pu2meter(self, line):
@@ -169,19 +186,24 @@ class BookleBridge:
 
 		return pu_meter
 
-	def get_left_distance(self, prev_pu):
+	def get_right_distance(self, prev_pu):
+                # return (0.001, rospy.Time.now())
 		self.ser_right.write(b'\x01\x03\x00\x00\x00\x1A\xC4\x01')
+                time.sleep(0.01)
 		line = self.ser_right.read(51)
 		curr_pu = self.pu2meter(line)
 
 		if curr_pu is None:
 			return (0, rospy.Time.now())
 
+                print("right: " + (prev_pu - curr_pu))
 		return (prev_pu - curr_pu, rospy.Time.now())
 		# return (0.01, rospy.Time.now())
 
-	def get_right_distance(self, prev_pu):
+	def get_left_distance(self, prev_pu):
+                # return (0.001, rospy.Time.now())
 		self.ser_left.write(b'\x02\x03\x00\x00\x00\x1A\xC4\x32')
+                time.sleep(0.01)
 		line = self.ser_left.read(51)
 		curr_pu = self.pu2meter(line)
 
@@ -191,7 +213,7 @@ class BookleBridge:
 		return (prev_pu - curr_pu, rospy.Time.now())
 		# return (0.01, rospy.Time.now())
 
-	def theta_norm(t):
+	def theta_norm(self, t):
 		if (t > 3.1415926):
 			t -= (2 * 3.1415926)
 
@@ -200,10 +222,13 @@ class BookleBridge:
 		return t
 
 	def action_state(self):
+                # return
 		if self.motor_run:
 			return
-		if self.next_point is (0, 0, 0):
+                if self.next_point == (0.0, 0.0, 0.0):
 			return
+
+                self.motor_run = True 
 
 		x_current = self.current_point[0]
 		x_next = self.next_point[0]
@@ -224,31 +249,31 @@ class BookleBridge:
 		xy_threshold = 0.1 
 		
 		# if theta change
-		if(abs(theta_norm(theta_next - theta_current)) > theta_threshold):
-			if(theta_norm(theta_current - theta_next) > theta_threshold):
-				TURN_LEFT(theta_current,theta_next)
-			elif(theta_norm(theta_next - theta_current) > theta_threshold):
-				TURN_RIGHT(theta_current,theta_next)
+		if(abs(self.theta_norm(theta_next - theta_current)) > theta_threshold):
+			if(self.theta_norm(theta_current - theta_next) > theta_threshold):
+				self.TURN_LEFT(theta_current,theta_next)
+			elif(self.theta_norm(theta_next - theta_current) > theta_threshold):
+				self.TURN_RIGHT(theta_current,theta_next)
 		else:
 			# if x change
 			if(abs(x_next - x_current) > xy_threshold):
-				if((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next > x_current)):
+				if((abs(self.theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next > x_current)):
 					self.STRAIGHT(x_current,x_next)
-				elif((abs(theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next < x_current)):
+				elif((abs(self.theta_norm(x_positive - theta_current)) < theta_threshold) and (x_next < x_current)):
 					self.BACKWARD(x_current,x_next)
-				elif((abs(theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next < x_current)):
+				elif((abs(self.theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next < x_current)):
 					self.STRAIGHT(x_current,x_next)
-				elif((abs(theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next > x_current)):
+				elif((abs(self.theta_norm(x_negative - theta_current)) < theta_threshold) and (x_next > x_current)):
 					self.BACKWARD(x_current,x_next)
 			# if y change
 			elif((y_next - y_current > xy_threshold )or(y_next - y_current < -xy_threshold)):
-				if((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next > y_current)):
+				if((abs(self.theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next > y_current)):
 					self.STRAIGHT(y_current,y_next)
-				elif((abs(theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next < y_current)):
+				elif((abs(self.theta_norm(y_positive - theta_current)) < theta_threshold) and (y_next < y_current)):
 					self.BACKWARD(y_current,y_next)
-				elif((abs(theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next < y_current)):
+				elif((abs(self.theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next < y_current)):
 					self.STRAIGHT(y_current,y_next)
-				elif((abs(theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next > y_current)):
+				elif((abs(self.theta_norm(y_negative - theta_current)) < theta_threshold) and (y_next > y_current)):
 					self.BACKWARD(y_current,y_next)
 
 	def update_transform(self, prev_time, prev_dis):
@@ -305,6 +330,7 @@ class BookleBridge:
 		br = tf.TransformBroadcaster()
 		br.sendTransform(trans, rot, rospy.Time.now(), 'base_footprint', 'odom')
 
+		print [dl + prev_dis[0], dr + prev_dis[1]]
 		return [[tmp_tl, tmp_tr], [dl + prev_dis[0], dr + prev_dis[1]]]
 
 	def clear_serial(self):

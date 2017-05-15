@@ -47,8 +47,8 @@ namespace bookle {
 			r, p, y);
 
 		geometry_msgs::Point point;
-		point.x = tmp_pose.pose.orientation.x; 
-		point.y = tmp_pose.pose.orientation.y; 
+		point.x = tmp_pose.pose.position.x; 
+		point.y = tmp_pose.pose.position.y; 
 		point.z = y;
 		pose_point_pub_.publish(point);
 

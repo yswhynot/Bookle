@@ -55,10 +55,8 @@ namespace bookle {
 		p.x = 1 - (float(next_p.x) / 100 * 2);
 		p.y = float(next_p.y) / 100 * 2 - 1;
 		p.z = getYawFloat(next_p.theta);
-		ROS_INFO("v_path.end: %d, %d, %d\n", v_path.back().x, v_path.back().y, v_path.back().theta);
 		ROS_INFO("Current:    %d, %d, %d\n", current_point.x, current_point.y, current_point.theta);
 		ROS_INFO("Next int:   %d, %d, %d\n", next_p.x, next_p.y, next_p.theta);
-		ROS_INFO("Next point: %.2f, %.2f, %.2f\n", p.x, p.y, p.z);
 		target_point_pub_.publish(p);
 	}
 
