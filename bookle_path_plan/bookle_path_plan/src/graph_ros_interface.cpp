@@ -11,18 +11,41 @@ namespace bookle {
 
 		bVertexSet barrier_set;
 
+		printf("resolution: %f\n", resolution);
+		printf("origin: (%f, %f) (%f, %f, %f, %f)\n", map.info.origin.position.x, map.info.origin.position.y, map.info.origin.orientation.x, map.info.origin.orientation.y, map.info.origin.orientation.z, map.info.origin.orientation.w);
+
+		bVertexSet barrier_set;
+
+		std::vector<Point> point_vec;
+		long unsigned int x_offset = (long unsigned int)(-map.info.origin.position.x / resolution);
+		long unsigned int y_offset = (long unsigned int)(-map.info.origin.position.y / resolution);
+		printf("offset: %lu, %lu\n", x_offset, y_offset);
+		const float FILTER_THRESHOLD = 0.3;
+
 		ROS_INFO("\nUpdate barrier of width: %d, height: %d \n", width, height);
 		for(long unsigned int x = 0; x < width; x++) {
 			for(long unsigned int y = 0; y < height; y++) {
 				if(map.data[width * x + y] > BARRIER_THRESHOLD) {
 					// Update grid with all 4 dimentions
 					printf("(%lu, %lu)\n", x, y);
-					for(long unsigned int z = 0; z < Z_LENGTH; z++) {
-						barrier_set.insert(bVertexDescriptor {{x, y, z}});
-					}
+					// printf("(%lu, %lu) ", x, y);
+
+					point_vec.push_back(Point{x, y, 0});
 				}
 			} // end for y
 		} // end for x
+
+		// Filter for the physical shit
+		for(std::vector<Point>::iterator it = point_vec.begin(); it != point_vec.end(); it++) {
+			printf("(%lu, %lu) ", it->x, it->y);
+			// if((it->x < 100) || (it->y < 100)) continue;
+			for(long unsigned int z = 0; z < Z_LENGTH; z++) {
+				// barrier_set.insert(bVertexDescriptor {{it->x, it->y, z}});
+				// barrier_set.insert(bVertexDescriptor {{it->x - x_min, it->y - y_min, z}});
+				// barrier_set.insert(bVertexDescriptor {{it->x - 100, it->y - 100, z}});
+				barrier_set.insert(bVertexDescriptor {{(long unsigned int)(resolution * (float)(it->x - y_offset - y_offset) * 50), (long unsigned int)(resolution * (float)(it->y - x_offset + 60) * 50), z}});
+			}
+		}
 
 		if(grid_graph.UpdateBarrier(barrier_set)) {
 			ROS_INFO("\n\n-----------------------------\nBarrier map:\n");
